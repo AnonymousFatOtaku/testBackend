@@ -1,15 +1,19 @@
-// 后台管理主路由头部组件
+// 后台管理主路由左侧导航组件
 import React, {Component} from "react";
 import {Link} from "react-router-dom";
 import {Menu, Button} from 'antd';
 import {
-  AppstoreOutlined,
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
   PieChartOutlined,
-  DesktopOutlined,
-  ContainerOutlined,
-  MailOutlined,
+  BarChartOutlined,
+  LineChartOutlined,
+  AreaChartOutlined,
+  BarsOutlined,
+  HomeOutlined,
+  UserOutlined,
+  AppstoreOutlined,
+  ContactsOutlined,
+  ShoppingCartOutlined,
+  DatabaseOutlined,
 } from '@ant-design/icons';
 import logo from '../../assets/images/logo.gif';
 import './admin-sider.less';
@@ -32,26 +36,54 @@ export default class AdminSider extends Component {
           mode="inline"
           theme="dark"
         >
-          <Menu.Item key="1" icon={<PieChartOutlined/>}>
-            首页
+          <Menu.Item key="1" icon={<HomeOutlined/>}>
+            <Link to='/home'>
+              首页
+            </Link>
           </Menu.Item>
-          <SubMenu key="sub1" icon={<MailOutlined/>} title="商品">
-            <Menu.Item key="2">品类管理</Menu.Item>
-            <Menu.Item key="3">商品管理</Menu.Item>
+          <SubMenu key="sub1" icon={<AppstoreOutlined/>} title="商品">
+            <Menu.Item key="2" icon={<DatabaseOutlined/>}>
+              <Link to='/category'>
+                品类管理
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="3" icon={<ShoppingCartOutlined/>}>
+              <Link to='/product'>
+                商品管理
+              </Link>
+            </Menu.Item>
           </SubMenu>
-          <Menu.Item key="4" icon={<PieChartOutlined/>}>
-            用户管理
+          <Menu.Item key="4" icon={<UserOutlined/>}>
+            <Link to='/user'>
+              用户管理
+            </Link>
           </Menu.Item>
-          <Menu.Item key="5" icon={<PieChartOutlined/>}>
-            角色管理
+          <Menu.Item key="5" icon={<ContactsOutlined/>}>
+            <Link to='/role'>
+              角色管理
+            </Link>
           </Menu.Item>
-          <SubMenu key="sub2" icon={<MailOutlined/>} title="图形图表">
-            <Menu.Item key="6">柱形图</Menu.Item>
-            <Menu.Item key="7">折线图</Menu.Item>
-            <Menu.Item key="8">饼图</Menu.Item>
+          <SubMenu key="sub2" icon={<AreaChartOutlined/>} title="图形图表">
+            <Menu.Item key="6" icon={<BarChartOutlined/>}>
+              <Link to='/charts/bar'>
+                柱形图
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="7" icon={<LineChartOutlined/>}>
+              <Link to='/charts/line'>
+                折线图
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="8" icon={<PieChartOutlined/>}>
+              <Link to='/charts/pie'>
+                饼图
+              </Link>
+            </Menu.Item>
           </SubMenu>
-          <Menu.Item key="9" icon={<PieChartOutlined/>}>
-            订单管理
+          <Menu.Item key="9" icon={<BarsOutlined/>}>
+            <Link to='/order'>
+              订单管理
+            </Link>
           </Menu.Item>
         </Menu>
       </div>

@@ -1,4 +1,4 @@
-// 后台管理主路由左侧导航组件
+// 后台管理主路由头部组件
 import React, {Component} from "react";
 import './admin-header.less';
 
