@@ -6,9 +6,9 @@ import AdminSider from "../../components/admin-sider/admin-sider";
 import AdminHeader from "../../components/admin-header/admin-header";
 import Home from "../home/home";
 import Category from "../category/category";
-import Bar from "../charts/bar";
-import Line from "../charts/line";
-import Pie from "../charts/pie";
+import Bar from "../bar/bar";
+import Line from "../line/line";
+import Pie from "../pie/pie";
 import Product from "../product/product";
 import Role from "../role/role";
 import User from "../user/user";
@@ -28,7 +28,7 @@ export default class Admin extends Component {
           <Header>
             <AdminHeader/>
           </Header>
-          <Content>
+          <Content className="adminContent">
             <Switch>
               <Redirect from='/' exact to='/home'/>
               <Route path='/home' component={Home}/>
