@@ -1,6 +1,7 @@
 // 商品管理路由
 import React, {Component} from "react";
 import {Button, Card, Table, Tag, Space, Select, Input, Modal} from 'antd';
+import {PlusOutlined} from '@ant-design/icons';
 
 export default class Product extends Component {
   render() {
@@ -141,7 +142,7 @@ export default class Product extends Component {
     // 顶部右侧按钮
     const extra = (
       <div>
-        <Button type='primary'>添加</Button>
+        <Button type='primary' icon={<PlusOutlined/>} onClick={this.addCategory}>添加商品</Button>
       </div>
     )
 
