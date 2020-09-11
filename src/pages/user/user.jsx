@@ -1,7 +1,6 @@
 // 用户管理路由
 import React, {Component} from "react";
 import {Button, Card, Space, Table, Modal, Select, Input, Form} from 'antd';
-import {FormInstance} from 'antd/lib/form';
 import './user.less'
 
 export default class User extends Component {
