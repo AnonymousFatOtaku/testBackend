@@ -1,6 +1,6 @@
-// 商品管理路由
+// 商品管理主界面路由
 import React, {Component} from "react";
-import {Button, Card, Table, Tag, Space, Select, Input, Modal} from 'antd';
+import {Button, Card, Table, Space, Select, Input} from 'antd';
 import {PlusOutlined} from '@ant-design/icons';
 
 export default class Product extends Component {
@@ -39,7 +39,7 @@ export default class Product extends Component {
         key: 'action',
         render: () => (
           <Space size="middle">
-            <a>详情</a>
+            <a onClick={() => this.props.history.push('/product/info')}>详情</a>
             <a>修改</a>
           </Space>
         ),
