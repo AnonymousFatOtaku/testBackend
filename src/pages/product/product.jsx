@@ -40,7 +40,7 @@ export default class Product extends Component {
         render: () => (
           <Space size="middle">
             <a onClick={() => this.props.history.push('/product/info')}>详情</a>
-            <a>修改</a>
+            <a onClick={() => this.props.history.push('/product/change')}>修改</a>
           </Space>
         ),
       },
@@ -142,7 +142,8 @@ export default class Product extends Component {
     // 顶部右侧按钮
     const extra = (
       <div>
-        <Button type='primary' icon={<PlusOutlined/>} onClick={this.addCategory}>添加商品</Button>
+        <Button type='primary' icon={<PlusOutlined/>}
+                onClick={() => this.props.history.push('/product/change')}>添加商品</Button>
       </div>
     )
 
