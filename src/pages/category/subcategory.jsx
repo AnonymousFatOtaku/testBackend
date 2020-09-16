@@ -1,10 +1,12 @@
-// 品类管理主界面路由
+// 品类管理子分类路由
 import React, {Component} from "react";
 import {Card, Button, Table, Modal, Input, Select} from 'antd';
-import {PlusOutlined} from '@ant-design/icons';
-import './category.less';
+import {
+  PlusOutlined,
+  ArrowRightOutlined,
+} from '@ant-design/icons';
 
-export default class Category extends Component {
+export default class Subcategory extends Component {
 
   state = {
     visible: 0, // 对话框标识，0不可见，1添加分类可见，2更新分类可见
@@ -38,7 +40,13 @@ export default class Category extends Component {
 
   render() {
     // 顶部左侧标题
-    const title = '一级分类列表'
+    const title = (
+      <span>
+        <a onClick={() => this.props.history.goBack()}>一级分类列表</a>
+        <ArrowRightOutlined style={{marginLeft: 10, marginRight: 10}}/>
+        家用电器
+      </span>
+    )
     // 顶部右侧按钮
     const extra = (
       <Button type='primary' icon={<PlusOutlined/>} onClick={this.addCategory}>添加</Button>
@@ -62,7 +70,6 @@ export default class Category extends Component {
         render: text => (
           <span>
             <a onClick={this.changeCategory}>修改分类&nbsp;&nbsp;&nbsp;&nbsp;</a>
-            <a onClick={() => this.props.history.push('/category/subcategory')}>查看子分类</a>
           </span>
         ),
       },

@@ -5,7 +5,7 @@ import {Layout} from 'antd';
 import AdminSider from "../../components/admin-sider/admin-sider";
 import AdminHeader from "../../components/admin-header/admin-header";
 import Home from "../home/home";
-import Category from "../category/category";
+import Category from "../category/index";
 import Product from "../product/index";
 import Bar from "../bar/bar";
 import Line from "../line/line";
