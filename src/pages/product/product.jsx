@@ -4,14 +4,25 @@ import {Button, Card, Table, Space, Select, Input} from 'antd';
 import {PlusOutlined} from '@ant-design/icons';
 
 export default class Product extends Component {
+
+  state = {
+    sale: true, // 销售状态，true为上架，false为下架
+  }
+
+  // 改变上/下架状态
+  changeSale = (sale) => {
+    this.setState({sale: !sale});
+  }
+
   render() {
+
+    const {sale} = this.state;
 
     const columns = [
       {
         title: '商品名称',
         dataIndex: 'name',
         key: 'name',
-        // render: text => <a>{text}</a>,
       },
       {
         title: '商品描述',
@@ -29,8 +40,8 @@ export default class Product extends Component {
         key: 'status',
         render: () => (
           <div>
-            <Button type='primary'>上架</Button>
-            <p>已下架</p>
+            <Button type='primary' onClick={() => this.changeSale(sale)}>{sale ? '下架' : '上架'}</Button>
+            <p>{sale ? '在售' : '已下架'}</p>
           </div>
         ),
       },

@@ -4,7 +4,10 @@ import {Button, Card, Table, Modal, Form, Input, Tree} from 'antd';
 
 export default class Role extends Component {
 
-  state = {visible: false};
+  state = {
+    visible: false,
+    isDisable: true, // 设置角色权限按钮状态，true为不可点击，false为可点击
+  };
 
   showModal = () => {
     this.setState({
@@ -26,7 +29,15 @@ export default class Role extends Component {
     });
   };
 
+  closeDisable = () => {
+    this.setState({
+      isDisable: false,
+    });
+  };
+
   render() {
+
+    const {isDisable} = this.state
 
     const columns = [
       {
@@ -249,7 +260,7 @@ export default class Role extends Component {
     const title = (
       <div>
         <Button type='primary' onClick={this.showModal}>创建角色</Button>&nbsp;&nbsp;&nbsp;&nbsp;
-        <Button type='primary' disabled>设置角色权限</Button>
+        <Button type='primary' disabled={isDisable} onClick={this.showModal}>设置角色权限</Button>
       </div>
     )
 
@@ -271,7 +282,8 @@ export default class Role extends Component {
 
     return (
       <Card title={title}>
-        <Table columns={columns} dataSource={data} bordered rowSelection={{type: 'radio'}} rowKey='_id'/>
+        <Table columns={columns} dataSource={data} bordered rowSelection={{type: 'radio', onSelect: this.closeDisable}}
+               rowKey='_id'/>
         <Modal
           title="创建角色"
           visible={this.state.visible}

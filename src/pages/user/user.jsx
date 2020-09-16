@@ -64,7 +64,7 @@ export default class User extends Component {
         key: 'action',
         render: () => (
           <Space size="middle">
-            <a>修改</a>
+            <a onClick={this.showModal}>修改</a>
             <a>删除</a>
           </Space>
         ),
