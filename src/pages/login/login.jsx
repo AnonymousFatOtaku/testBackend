@@ -1,18 +1,42 @@
 // 用户登录的路由组件
 import React, {Component} from 'react'
-import {Form, Input, Button, Checkbox} from 'antd';
+import {Redirect} from 'react-router-dom'
+import {Form, Input, Button, Checkbox, message} from 'antd';
 import {UserOutlined, LockOutlined} from '@ant-design/icons';
 import logo from '../../assets/images/logo.gif'
 import './login.less'
+import {reqLogin} from '../../api/index'
+import memoryUtils from "../../utils/memoryUtils";
+import storageUtils from "../../utils/storageUtils";
 
 export default class Login extends Component {
 
   render() {
 
+    // 如果用户已经登录则自动跳转到管理界面
+    const user = memoryUtils.user
+    if (user && user._id) {
+      return <Redirect to='/'/>
+    }
+
     // onFinish为提交表单且数据验证成功后的回调事件，values即表单数据，分别在输入过程中和点击登录按钮时进行验证
-    const onFinish = values => {
+    const onFinish = async values => {
       console.log('获取到的表单数据：', values);
       console.log("用户名：" + values.username + "，密码：" + values.password + "，记住密码：" + values.remember);
+      const result = await reqLogin(values.username, values.password)
+      if (result.status === 0) { // 登录成功
+        // 提示登录成功
+        message.success('登录成功')
+        // 保存user
+        const user = result.data
+        memoryUtils.user = user // 保存在内存中
+        storageUtils.saveUser(user) // 保存到local中
+        // 跳转到管理界面 (不需要再回退到登录)
+        this.props.history.replace('/')
+      } else { // 登录失败
+        // 提示错误信息
+        message.error(result.msg)
+      }
     };
 
     // onFinishFailed为提交表单且数据验证失败后的回调事件

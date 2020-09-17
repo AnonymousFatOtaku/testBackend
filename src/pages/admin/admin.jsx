@@ -13,12 +13,18 @@ import Pie from "../pie/pie";
 import Role from "../role/role";
 import User from "../user/user";
 import Order from "../order/order";
+import memoryUtils from "../../utils/memoryUtils";
 import './admin.less';
 
 const {Header, Footer, Sider, Content} = Layout;
 
 export default class Admin extends Component {
   render() {
+    const user = memoryUtils.user
+    // 如果内存没有存储user代表当前没有登录，自动跳转到登录(在render()中)
+    if (!user || !user._id) {
+      return <Redirect to='/login'/>
+    }
     return (
       <Layout className="admin">
         <Sider>
