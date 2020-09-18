@@ -6,6 +6,7 @@ import memoryUtils from '../../utils/memoryUtils'
 import storageUtils from '../../utils/storageUtils'
 import {formateDate} from '../../utils/dateUtils'
 import {reqWeather} from '../../api'
+import menuUtils from "../../utils/menuUtils";
 import './admin-header.less';
 
 class AdminHeader extends Component {
@@ -15,6 +16,24 @@ class AdminHeader extends Component {
     wea: '', // 天气
     city: '', // 城市
     tem: '', // 温度
+  }
+
+  // 根据当前路径获取顶部标题
+  getTitle = () => {
+    // 得到当前请求路径
+    const path = this.props.location.pathname
+    let title
+    menuUtils.forEach(item => {
+      if (item.path === path) { // 如果当前item对象的path和当前路径一样说明item的name就是需要显示的title
+        title = item.name
+      } else if (item.children) {// 如果有子菜单则在所有子item中查找匹配的path
+        const cItem = item.children.find(cItem => path.indexOf(cItem.path) === 0)
+        if (cItem) {// 如果有值说明有匹配的
+          title = cItem.name
+        }
+      }
+    })
+    return title
   }
 
   // 获取当前天气
@@ -67,6 +86,7 @@ class AdminHeader extends Component {
 
     const {currentTime, wea, city, tem} = this.state
     const username = memoryUtils.user.username
+    const title = this.getTitle()
 
     return (
       <div className="adminHeader">
@@ -75,7 +95,7 @@ class AdminHeader extends Component {
           <a onClick={this.logout}>退出</a>
         </div>
         <div className="adminHeader-pageInfo">
-          <div className="adminHeader-pageInfo-title">首页</div>
+          <div className="adminHeader-pageInfo-title">{title}</div>
           <div className="adminHeader-pageInfo-time">
             <span>{currentTime}</span>
             <span style={{marginLeft: 10, marginRight: 10}}>{city}</span>
