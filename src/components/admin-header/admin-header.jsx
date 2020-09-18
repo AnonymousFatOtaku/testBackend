@@ -5,12 +5,24 @@ import {Modal} from 'antd'
 import memoryUtils from '../../utils/memoryUtils'
 import storageUtils from '../../utils/storageUtils'
 import {formateDate} from '../../utils/dateUtils'
+import {reqWeather} from '../../api'
 import './admin-header.less';
 
 class AdminHeader extends Component {
 
   state = {
     currentTime: formateDate(Date.now()), // 当前时间字符串
+    wea: '', // 天气
+    city: '', // 城市
+    tem: '', // 温度
+  }
+
+  // 获取当前天气
+  getWeather = async () => {
+    // 调用接口请求异步获取数据
+    const {wea, city, tem} = await reqWeather()
+    // 更新状态
+    this.setState({wea, city, tem})
   }
 
   // 获取当前时间
@@ -41,6 +53,8 @@ class AdminHeader extends Component {
   componentDidMount() {
     // 获取当前时间
     this.getTime()
+    // 获取当前天气
+    this.getWeather()
   }
 
   // 当前组件卸载之前调用
@@ -51,7 +65,7 @@ class AdminHeader extends Component {
 
   render() {
 
-    const {currentTime,} = this.state
+    const {currentTime, wea, city, tem} = this.state
     const username = memoryUtils.user.username
 
     return (
@@ -64,8 +78,9 @@ class AdminHeader extends Component {
           <div className="adminHeader-pageInfo-title">首页</div>
           <div className="adminHeader-pageInfo-time">
             <span>{currentTime}</span>
-            <img src="https://cdn.aixifan.com/acfun-pc/2.8.41/img/404.png" alt=""/>
-            <span>天气</span>
+            <span style={{marginLeft: 10, marginRight: 10}}>{city}</span>
+            <span>{wea}</span>
+            <span style={{marginLeft: 10, marginRight: 10}}>{tem}°</span>
           </div>
         </div>
       </div>
