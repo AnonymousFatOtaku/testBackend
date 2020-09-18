@@ -4,9 +4,23 @@ import {withRouter} from 'react-router-dom'
 import {Modal} from 'antd'
 import memoryUtils from '../../utils/memoryUtils'
 import storageUtils from '../../utils/storageUtils'
+import {formateDate} from '../../utils/dateUtils'
 import './admin-header.less';
 
 class AdminHeader extends Component {
+
+  state = {
+    currentTime: formateDate(Date.now()), // 当前时间字符串
+  }
+
+  // 获取当前时间
+  getTime = () => {
+    // 每隔1s获取当前时间并更新状态数据currentTime
+    this.intervalId = setInterval(() => {
+      const currentTime = formateDate(Date.now())
+      this.setState({currentTime})
+    }, 1000)
+  }
 
   // 退出登录
   logout = () => {
@@ -23,8 +37,21 @@ class AdminHeader extends Component {
     })
   }
 
+  // 第一次render()之后执行一次，一般在此执行异步操作：发ajax请求/启动定时器
+  componentDidMount() {
+    // 获取当前时间
+    this.getTime()
+  }
+
+  // 当前组件卸载之前调用
+  componentWillUnmount() {
+    // 清除定时器
+    clearInterval(this.intervalId)
+  }
+
   render() {
 
+    const {currentTime,} = this.state
     const username = memoryUtils.user.username
 
     return (
@@ -36,7 +63,7 @@ class AdminHeader extends Component {
         <div className="adminHeader-pageInfo">
           <div className="adminHeader-pageInfo-title">首页</div>
           <div className="adminHeader-pageInfo-time">
-            <span>时间</span>
+            <span>{currentTime}</span>
             <img src="https://cdn.aixifan.com/acfun-pc/2.8.41/img/404.png" alt=""/>
             <span>天气</span>
           </div>
