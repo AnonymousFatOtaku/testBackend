@@ -5,6 +5,15 @@ import {message} from 'antd'
 
 // 登录
 export const reqLogin = (username, password) => ajax('/login', {username, password}, 'POST')
+// 获取一级/二级分类的列表
+export const reqCategorys = (parentId) => ajax('/manage/category/list', {parentId})
+// 添加分类
+export const reqAddCategory = (categoryName, parentId) => ajax('/manage/category/add', {categoryName, parentId}, 'POST')
+// 更新分类
+export const reqUpdateCategory = ({categoryId, categoryName}) => ajax('/manage/category/update', {
+  categoryId,
+  categoryName
+}, 'POST')
 
 // 获取当前IP所在地天气
 export const reqWeather = () => {
