@@ -18,6 +18,8 @@ export default class Category extends Component {
     parentName: '', // 当前需要显示的分类列表的父分类名称
   };
 
+  formRef = React.createRef();
+
   // 初始化table所有列
   initColumns = () => {
     this.columns = [
@@ -30,7 +32,7 @@ export default class Category extends Component {
         title: '操作',
         render: (category) => ( // 返回需要显示的界面标签
           <span>
-            <a onClick={this.showUpdateCategory}>修改分类&nbsp;&nbsp;&nbsp;&nbsp;</a>
+            <a onClick={() => this.showUpdateCategory(category)}>修改分类&nbsp;&nbsp;&nbsp;&nbsp;</a>
             {this.state.parentId === '0' ? <a onClick={() => this.showSubCategorys(category)}>查看子分类</a> : null}
           </span>
         )
@@ -48,17 +50,15 @@ export default class Category extends Component {
     const result = await reqCategorys(parentId)
     // 在请求完成后隐藏loading
     this.setState({loading: false})
-
+    // 根据执行结果返回的状态判定是否成功
     if (result.status === 0) {
       // 取出分类数组(可能是一级也可能二级的)
       const categorys = result.data
-      if (parentId === '0') {
-        // 更新一级分类状态
+      if (parentId === '0') {// 如果parentId为0则更新一级分类状态
         this.setState({
           categorys
         })
-      } else {
-        // 更新二级分类状态
+      } else {// 否则更新二级分类状态
         this.setState({
           subCategorys: categorys
         })
@@ -94,31 +94,75 @@ export default class Category extends Component {
   showAddCategory = () => {
     this.setState({
       visible: 1,
-    });
+    })
   };
 
   // 添加分类
-  addCategory = () => {
-    console.log(this.form);
-    // reqAddCategory("categoryName")
+  addCategory = async () => {
+    // 隐藏确认框
+    this.setState({
+      visible: 0
+    })
+    // 获取到选中的父类ID和输入的新分类名
+    const parentId = this.parentId
+    const {categoryName} = this.formRef.current.getFieldsValue({categoryName: String})
+    // console.log(parentId, categoryName)
+    // 提交添加分类的请求
+    const result = await reqAddCategory(categoryName, parentId)
+    // console.log(result.status, parentId)
+    // 如果添加成功刷新显示并弹出提示成功的消息
+    if (result.status === 0) {
+      // 如果是在当前分类下添加的新分类则刷新显示当前分类
+      if (parentId === this.state.parentId || parentId === undefined) {
+        this.getCategorys()
+      } else if (parentId === '0') { // 如果是在二级分类列表下添加一级分类则重新获取一级分类列表，但不需要显示一级列表
+        this.getCategorys('0')
+      }
+      message.success('已成功添加新分类：' + categoryName);
+    } else { // 添加失败也要弹出消息提示
+      message.error('分类添加失败请检查后重试');
+    }
   };
 
   // 显示修改的确认框
-  showUpdateCategory = () => {
+  showUpdateCategory = (category) => {
+    // 保存分类对象
+    this.category = category
     this.setState({
       visible: 2,
     });
   };
 
   // 更新分类
-  updateCategory = () => {
-    const categoryId = "5f68839e6e2d112c182fdfe7"
-    const categoryName = "newCategoryName111"
-    // reqUpdateCategory({categoryId, categoryName})
+  updateCategory = async () => {
+    // 隐藏确定框
+    this.setState({
+      visible: 0
+    })
+    // 准备数据
+    const categoryId = this.category._id
+    const {categoryName} = this.formRef.current.getFieldsValue({categoryName: String})
+    // console.log(categoryId, categoryName, typeof categoryName)
+    // 判定输入内容是否为空或包含空格
+    if (categoryName === null || categoryName === undefined || categoryName.indexOf(' ') === 0 || categoryName === "") {
+      message.error('分类名称不能为空或包含空格');
+    } else {
+      // 提交修改分类的请求
+      const result = await reqUpdateCategory({categoryId, categoryName})
+      // 如果修改成功刷新显示并弹出提示成功的消息
+      if (result.status === 0) {
+        // 重新显示列表
+        this.getCategorys()
+        message.success('分类"' + this.category.name + '"已修改为"' + categoryName + '"');
+      } else { // 修改失败也要弹出消息提示
+        message.error('分类修改失败请检查后重试');
+      }
+    }
   }
 
+  // modal的cancel按钮
   handleCancel = e => {
-    console.log(e);
+    // console.log(e);
     this.setState({
       visible: 0,
     });
@@ -158,32 +202,40 @@ export default class Category extends Component {
 
     const {Option} = Select;
 
-    function handleChange(value) {
-      console.log(`selected ${value}`);
-    }
-
     return (
       <Card title={title} extra={extra}>
+        {/* 顶部左侧标题在一/二级分类下显示不同内容，通过loading设置页面加载状态，通过pagination设置分页 */}
         <Table columns={this.columns} dataSource={parentId === '0' ? categorys : subCategorys} bordered rowKey='_id'
                loading={loading} pagination={{defaultPageSize: 8, showQuickJumper: true}} style={{height: 613}}/>
+        {/* 通过destroyOnClose在Modal关闭后清空内容 */}
         <Modal title="添加分类" visible={visible === 1} onOk={this.addCategory} onCancel={this.handleCancel} destroyOnClose>
-          <Form preserve={false}>
+          {/* <Modal/>和Form一起配合使用时，设置destroyOnClose也不会在Modal关闭时销毁表单字段数据，需要设置<Form preserve={false}/> */}
+          <Form preserve={false} ref={this.formRef}>
             <Form.Item>
-              <Select defaultValue="lucy" style={{width: 472, marginBottom: 20}} onChange={handleChange}>
-                <Option value="jack">Jack</Option>
-                <Option value="lucy">Lucy</Option>
-                <Option value="Yiminghe">yiminghe</Option>
+              <Select defaultValue='0' style={{width: 472, marginBottom: 20}} onSelect={(value) => {
+                this.parentId = value
+                // console.log(this.parentId)
+              }}>
+                <Option value='0'>一级分类</Option>
+                {/* 遍历所有一级分类 */}
+                {
+                  categorys.map(category => <Option value={category._id} key={category._id}>{category.name}</Option>)
+                }
               </Select>
             </Form.Item>
-            <Form.Item>
+            <Form.Item name="categoryName">
               <Input placeholder="请输入分类名称"/>
             </Form.Item>
           </Form>
         </Modal>
-        <Modal title="更新分类" visible={visible === 2} onOk={this.updateCategory} onCancel={this.handleCancel} destroyOnClose>
-          <Form preserve={false}>
-            <Form.Item>
-              <Input placeholder="一级分类名"/>
+        <Modal title="更新分类" visible={visible === 2} onOk={this.updateCategory} onCancel={this.handleCancel}
+               destroyOnClose>
+          <Form preserve={false} ref={this.formRef}>
+            {/* 设置whitespace为true禁止纯空格 */}
+            <Form.Item name="categoryName" rules={[
+              {required: true, whitespace: true, message: '分类名称不能为空或包含空格'}
+            ]}>
+              <Input placeholder="请输入分类名称" defaultValue={category.name}/>
             </Form.Item>
           </Form>
         </Modal>
