@@ -14,6 +14,12 @@ export const reqUpdateCategory = ({categoryId, categoryName}) => ajax('/manage/c
   categoryId,
   categoryName
 }, 'POST')
+// 添加/修改商品
+export const reqAddProduct = (product) => ajax('/manage/product/add', product, 'POST')
+// 获取商品分页列表
+export const reqProducts = (pageNum, pageSize) => ajax('/manage/product/list', {pageNum, pageSize})
+// 更新商品的状态(上架/下架)
+export const reqUpdateStatus = (productId, status) => ajax('/manage/product/updateStatus', {productId, status}, 'POST')
 
 // 获取当前IP所在地天气
 export const reqWeather = () => {
