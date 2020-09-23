@@ -2,7 +2,7 @@
 import React, {Component} from "react";
 import {Button, Card, Table, Select, Input, message} from 'antd';
 import {PlusOutlined} from '@ant-design/icons';
-import {reqProducts, reqUpdateStatus} from '../../api'
+import {reqProducts, reqUpdateStatus, reqSearchProducts} from '../../api'
 
 export default class Product extends Component {
 
@@ -10,6 +10,8 @@ export default class Product extends Component {
     total: 0, // 商品的总数量
     products: [], // 商品的数组
     loading: false, // 是否正在加载中
+    searchName: '', // 搜索的关键字
+    searchType: 'productName', // 根据哪个字段搜索
   }
 
   // 初始化table所有列
@@ -47,11 +49,11 @@ export default class Product extends Component {
       {
         width: 100,
         title: '操作',
-        render: () => {
+        render: (product) => {
           return (
             <span>
-              <a onClick={() => this.props.history.push('/product/info')}>详情&nbsp;&nbsp;</a>
-              <a onClick={() => this.props.history.push('/product/change')}>修改</a>
+              <a onClick={() => this.props.history.push('/product/info', {product})}>详情&nbsp;&nbsp;</a>
+              <a onClick={() => this.props.history.push('/product/addupdate', product)}>修改</a>
             </span>
           )
         }
@@ -63,8 +65,13 @@ export default class Product extends Component {
   getProducts = async (pageNum) => {
     this.pageNum = pageNum // 保存pageNum
     this.setState({loading: true}) // 显示loading
-    // 分页请求
-    let result = await reqProducts(pageNum, 5)
+    const {searchName, searchType} = this.state
+    let result
+    if (searchName) { // 如果搜索关键字有值说明要做搜索分页
+      result = await reqSearchProducts({pageNum, pageSize: 5, searchName, searchType})
+    } else { // 一般分页请求
+      result = await reqProducts(pageNum, 5)
+    }
     this.setState({loading: false}) // 隐藏loading
     if (result.status === 0) {
       // 取出分页数据，更新状态，显示分页列表
@@ -100,25 +107,26 @@ export default class Product extends Component {
   render() {
 
     // 取出状态数据
-    const {products, total, loading} = this.state
-
+    const {products, total, loading, searchType, searchName} = this.state
     const {Option} = Select;
 
     // 顶部左侧搜索栏
     const title = (
       <span>
-        <Select style={{width: 200, marginRight: 20}}>
-          <Option>按名称搜索</Option>
-          <Option>按描述搜索</Option>
+        <Select style={{width: 200, marginRight: 20}} value={searchType}
+                onChange={value => this.setState({searchType: value})}>
+          <Option value='productName'>按名称搜索</Option>
+          <Option value='productDesc'>按描述搜索</Option>
         </Select>
-        <Input placeholder='关键字' style={{width: 200, marginRight: 20}}/>
-        <Button type='primary'>搜索</Button>
+        <Input placeholder='关键字' style={{width: 200, marginRight: 20}} value={searchName}
+               onChange={event => this.setState({searchName: event.target.value})}/>
+        <Button type='primary' onClick={() => this.getProducts(1)}>搜索</Button>
       </span>
     )
 
     // 顶部右侧按钮
     const extra = (
-      <Button type='primary' icon={<PlusOutlined/>} onClick={() => this.props.history.push('/product/change')}>
+      <Button type='primary' icon={<PlusOutlined/>} onClick={() => this.props.history.push('/product/addupdate')}>
         添加商品
       </Button>
     )
