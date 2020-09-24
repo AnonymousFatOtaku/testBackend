@@ -54,6 +54,12 @@ export default class ProductAddUpdate extends Component {
     }
   };
 
+  handleClearContent = () => {  //清空文本
+    this.setState({
+      editorState: ''
+    })
+  }
+
   handleGetText = () => {    //获取文本内容
     this.setState({
       showRichText: true
@@ -145,11 +151,6 @@ export default class ProductAddUpdate extends Component {
     })
   }
 
-  // 提交
-  submit = () => {
-
-  }
-
   // 执行异步任务：发异步ajax请求
   componentDidMount() {
     // 异步获取一级/二级分类列表并显示
@@ -170,8 +171,10 @@ export default class ProductAddUpdate extends Component {
     const {isUpdate, product} = this
     const {pCategoryId, categoryId} = product
     const {loading, imageUrl, editorState, editorContent} = this.state;
+
     // 用来接收级联分类ID的数组
     const categoryIds = []
+
     if (isUpdate) { // 商品是一个一级分类的商品
       if (pCategoryId === '0') {
         categoryIds.push(categoryId)
@@ -188,6 +191,7 @@ export default class ProductAddUpdate extends Component {
       </div>
     );
 
+    // 顶部左侧标题
     const title = (
       <span>
           <ArrowLeftOutlined style={{color: "green", marginRight: 20}} onClick={() => this.props.history.goBack()}/>
@@ -195,19 +199,56 @@ export default class ProductAddUpdate extends Component {
       </span>
     )
 
+    // 提交
+    const onFinish = async values => {
+      // console.log('Success:', values);
+      // 收集输入的数据
+      const {name, desc, price, categoryIds} = values
+      let pCategoryId, categoryId
+      if (categoryIds.length === 1) {
+        pCategoryId = '0'
+        categoryId = categoryIds[0]
+      } else {
+        pCategoryId = categoryIds[0]
+        categoryId = categoryIds[1]
+      }
+      // 获取富文本框内容
+      let detail = ""
+      for (let i = 0; i < this.state.editorContent.blocks.length; i++) {
+        detail += this.state.editorContent.blocks[i].text
+        console.log(i, detail);
+      }
+      // 将收集到的数据封装成product对象
+      const product = {name, desc, price, pCategoryId, categoryId, detail}
+      console.log(name, desc, price, pCategoryId, categoryId, detail);
+      // 如果是更新则需要添加_id
+      if (this.isUpdate) {
+        product._id = this.product._id
+      }
+      // 调用接口请求函数去添加/更新
+      const result = await reqAddOrUpdateProduct(product)
+      // 根据结果提示
+      if (result.status === 0) {
+        message.success(`${this.isUpdate ? '更新' : '添加'}商品成功`)
+        this.props.history.goBack()
+      } else {
+        message.error(`${this.isUpdate ? '更新' : '添加'}商品失败`)
+      }
+    };
+
     return (
       <Card title={title} style={{height: 800}}>
-        <Form ref={this.formRef}>
-          <Form.Item label="商品名称：">
+        <Form ref={this.formRef} onFinish={onFinish}>
+          <Form.Item name="name" label="商品名称：">
             <Input placeholder="请输入商品名称" style={{width: 400}} defaultValue={product.name}/>
           </Form.Item>
-          <Form.Item label="商品描述：">
+          <Form.Item name="desc" label="商品描述：">
             <Input placeholder="请输入商品描述" style={{width: 400}} defaultValue={product.desc}/>
           </Form.Item>
-          <Form.Item label="商品价格：">
+          <Form.Item name="price" label="商品价格：">
             <Input placeholder="请输入商品价格" style={{width: 400}} addonAfter="元" defaultValue={product.price}/>
           </Form.Item>
-          <Form.Item label="商品分类：">
+          <Form.Item name="categoryIds" label="商品分类：">
             <Cascader options={this.state.options} loadData={this.loadData} placeholder="请选择商品分类" style={{width: 400}}/>
           </Form.Item>
           <Form.Item label="商品图片：">
@@ -216,7 +257,7 @@ export default class ProductAddUpdate extends Component {
               listType="picture-card"
               className="avatar-uploader"
               showUploadList={false}
-              action=""
+              action="manage/img/upload"
               beforeUpload={beforeUpload}
               onChange={this.handleChange}
             >
@@ -238,7 +279,7 @@ export default class ProductAddUpdate extends Component {
             </div>
           </Form.Item>
           <Form.Item style={{marginTop: 50, textAlign: "center"}}>
-            <Button type='primary' onClick={this.submit}>提交</Button>
+            <Button type='primary' htmlType="submit">提交</Button>
           </Form.Item>
         </Form>
       </Card>
