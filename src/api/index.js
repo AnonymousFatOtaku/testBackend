@@ -28,6 +28,12 @@ export const reqSearchProducts = ({pageNum, pageSize, searchName, searchType}) =
 })
 // 获取一个分类
 export const reqCategory = (categoryId) => ajax('/manage/category/info', {categoryId})
+// 获取所有角色的列表
+export const reqRoles = () => ajax('/manage/role/list')
+// 添加角色
+export const reqAddRole = (roleName) => ajax('/manage/role/add', {roleName}, 'POST')
+// 更新角色
+export const reqUpdateRole = (role) => ajax('/manage/role/update', role, 'POST')
 
 // 获取当前IP所在地天气
 export const reqWeather = () => {

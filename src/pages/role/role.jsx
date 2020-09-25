@@ -1,19 +1,64 @@
 // 角色管理路由
 import React, {Component} from "react";
 import {Button, Card, Table, Modal, Form, Input, Tree} from 'antd';
+import {reqRoles, reqAddRole, reqUpdateRole} from '../../api'
+import memoryUtils from "../../utils/memoryUtils"
+import {formateDate} from '../../utils/dateUtils'
+import storageUtils from "../../utils/storageUtils";
 
 export default class Role extends Component {
 
   state = {
-    visible: false,
-    isDisable: true, // 设置角色权限按钮状态，true为不可点击，false为可点击
+    roles: [], // 所有角色的列表
+    role: {}, // 选中的角色
+    visible: false, // 是否显示弹窗
   };
 
-  showModal = () => {
-    this.setState({
-      visible: true,
-    });
-  };
+  // 初始化table所有列
+  initColumn = () => {
+    this.columns = [
+      {
+        title: '角色名称',
+        dataIndex: 'name'
+      },
+      {
+        title: '创建时间',
+        dataIndex: 'create_time',
+        render: (create_time) => formateDate(create_time)
+      },
+      {
+        title: '授权时间',
+        dataIndex: 'auth_time',
+        render: formateDate
+      },
+      {
+        title: '授权人',
+        dataIndex: 'auth_name'
+      },
+    ]
+  }
+
+  // 获取所有角色
+  getRoles = async () => {
+    const result = await reqRoles()
+    if (result.status === 0) {
+      const roles = result.data
+      this.setState({
+        roles
+      })
+    }
+  }
+
+  // 点击行时获取选中的角色
+  onRow = (role) => {
+    return {
+      onClick: event => {
+        this.setState({
+          role
+        })
+      },
+    }
+  }
 
   handleOk = e => {
     console.log(e);
@@ -29,175 +74,17 @@ export default class Role extends Component {
     });
   };
 
-  closeDisable = () => {
-    this.setState({
-      isDisable: false,
-    });
-  };
+  componentWillMount() {
+    this.initColumn()
+  }
+
+  componentDidMount() {
+    this.getRoles()
+  }
 
   render() {
 
-    const {isDisable} = this.state
-
-    const columns = [
-      {
-        title: '角色名称',
-        dataIndex: 'name',
-      },
-      {
-        title: '创建时间',
-        dataIndex: 'create_time',
-      },
-      {
-        title: '授权时间',
-        dataIndex: 'auth_time',
-      },
-      {
-        title: '授权人',
-        dataIndex: 'auth_name',
-      },
-    ];
-
-    const data = [
-      {
-        "menus": [
-          "/role",
-          "/charts/bar",
-          "/home",
-          "/category"
-        ],
-        "_id": "5ca9eaa1b49ef916541160d3",
-        "name": "测试",
-        "create_time": 1554639521749,
-        "__v": 0,
-        "auth_time": 1558679920395,
-        "auth_name": "test007"
-      },
-      {
-        "menus": [
-          "/role",
-          "/charts/bar",
-          "/home",
-          "/charts/line",
-          "/category",
-          "/product",
-          "/products"
-        ],
-        "_id": "5ca9eab0b49ef916541160d4",
-        "name": "经理",
-        "create_time": 1554639536419,
-        "__v": 0,
-        "auth_time": 1558506990798,
-        "auth_name": "test008"
-      },
-      {
-        "menus": [
-          "/home",
-          "/products",
-          "/category",
-          "/product",
-          "/role"
-        ],
-        "_id": "5ca9eac0b49ef91541160d5",
-        "name": "角色1",
-        "create_time": 1554639552758,
-        "__v": 0,
-        "auth_time": 1557630307021,
-        "auth_name": "admin"
-      },
-      {
-        "menus": [
-          "/role",
-          "/charts/bar",
-          "/home",
-          "/category"
-        ],
-        "_id": "5ca9eaa1b49ef916541163",
-        "name": "测试",
-        "create_time": 1554639521749,
-        "__v": 0,
-        "auth_time": 1558679920395,
-        "auth_name": "test007"
-      },
-      {
-        "menus": [
-          "/role",
-          "/charts/bar",
-          "/home",
-          "/charts/line",
-          "/category",
-          "/product",
-          "/products"
-        ],
-        "_id": "5ca9eab0b49ef91654116",
-        "name": "经理",
-        "create_time": 1554639536419,
-        "__v": 0,
-        "auth_time": 1558506990798,
-        "auth_name": "test008"
-      },
-      {
-        "menus": [
-          "/home",
-          "/products",
-          "/category",
-          "/product",
-          "/role"
-        ],
-        "_id": "5ca9eac0b49ef9165411",
-        "name": "角色1",
-        "create_time": 1554639552758,
-        "__v": 0,
-        "auth_time": 1557630307021,
-        "auth_name": "admin"
-      },
-      {
-        "menus": [
-          "/role",
-          "/charts/bar",
-          "/home",
-          "/category"
-        ],
-        "_id": "5ca9eaa1b49ef9165410",
-        "name": "测试",
-        "create_time": 1554639521749,
-        "__v": 0,
-        "auth_time": 1558679920395,
-        "auth_name": "test007"
-      },
-      {
-        "menus": [
-          "/role",
-          "/charts/bar",
-          "/home",
-          "/charts/line",
-          "/category",
-          "/product",
-          "/products"
-        ],
-        "_id": "5ca9eab0b49ef916544",
-        "name": "经理",
-        "create_time": 1554639536419,
-        "__v": 0,
-        "auth_time": 1558506990798,
-        "auth_name": "test008"
-      },
-      {
-        "menus": [
-          "/home",
-          "/products",
-          "/category",
-          "/product",
-          "/role"
-        ],
-        "_id": "5ca9eac0b49ef91654",
-        "name": "角色1",
-        "create_time": 1554639552758,
-        "__v": 0,
-        "auth_time": 1557630307021,
-        "auth_name": "admin"
-      }
-    ];
+    const {roles, role} = this.state
 
     const treeData = [
       {
@@ -259,8 +146,8 @@ export default class Role extends Component {
     // 顶部左侧按钮
     const title = (
       <div>
-        <Button type='primary' onClick={this.showModal}>创建角色</Button>&nbsp;&nbsp;&nbsp;&nbsp;
-        <Button type='primary' disabled={isDisable} onClick={this.showModal}>设置角色权限</Button>
+        <Button type='primary' onClick={() => this.setState({visible: true})}>创建角色</Button>&nbsp;&nbsp;&nbsp;&nbsp;
+        <Button type='primary' disabled={!role._id} onClick={() => this.setState({visible: true})}>设置角色权限</Button>
       </div>
     )
 
@@ -282,8 +169,17 @@ export default class Role extends Component {
 
     return (
       <Card title={title}>
-        <Table columns={columns} dataSource={data} bordered rowSelection={{type: 'radio', onSelect: this.closeDisable}}
-               rowKey='_id'/>
+        <Table columns={this.columns} dataSource={roles} bordered rowKey='_id' pagination={{defaultPageSize: 8}}
+               rowSelection={{
+                 type: 'radio',
+                 selectedRowKeys: [role._id],
+                 onSelect: (role) => { // 选择某个radio时回调
+                   this.setState({
+                     role
+                   })
+                 }
+               }}
+               onRow={this.onRow} style={{height: 613}}/>
         <Modal
           title="创建角色"
           visible={this.state.visible}

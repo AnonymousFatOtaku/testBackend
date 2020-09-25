@@ -257,7 +257,7 @@ export default class ProductAddUpdate extends Component {
               listType="picture-card"
               className="avatar-uploader"
               showUploadList={false}
-              action="manage/img/upload"
+              action="/manage/img/upload"
               beforeUpload={beforeUpload}
               onChange={this.handleChange}
             >
