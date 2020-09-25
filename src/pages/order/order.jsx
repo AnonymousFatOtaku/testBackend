@@ -1,128 +1,71 @@
 // 订单管理路由
 import React, {Component} from "react";
 import {Button, Card, Space, Table, Modal, Select, Input, Form} from 'antd';
+import {formateDate} from "../../utils/dateUtils"
+import {reqOrders} from "../../api/index";
 
 export default class Order extends Component {
-  render() {
 
-    const columns = [
+  state = {
+    orders: [], // 所有订单列表
+  };
+
+  initColumns = () => {
+    this.columns = [
       {
         title: '订单号',
-        dataIndex: 'orderNumber',
+        dataIndex: 'orderId',
       },
       {
         title: '下单时间',
         dataIndex: 'orderTime',
+        render: (orderTime) => formateDate(orderTime)
       },
       {
         title: '商品名',
-        dataIndex: 'product',
+        dataIndex: 'productName',
       },
       {
         title: '商品分类',
-        dataIndex: 'category',
+        dataIndex: 'role_id',
       },
       {
         title: '商品数量',
-        dataIndex: 'account',
+        dataIndex: 'productCount',
       },
       {
         title: '订单价格',
-        dataIndex: 'price',
+        dataIndex: 'orderPrice',
       },
     ];
+  }
 
-    const data = [
-      {
-        key: '1',
-        orderNumber: 'John Brown',
-        orderTime: '￥300,000.00',
-        product: 'New York No. 1 Lake Park',
-        category: 'John Brown',
-        account: '￥300,000.00',
-        price: 'New York No. 1 Lake Park',
-      },
-      {
-        key: '2',
-        orderNumber: 'John Brown',
-        orderTime: '￥300,000.00',
-        product: 'New York No. 1 Lake Park',
-        category: 'John Brown',
-        account: '￥300,000.00',
-        price: 'New York No. 1 Lake Park',
-      },
-      {
-        key: '3',
-        orderNumber: 'John Brown',
-        orderTime: '￥300,000.00',
-        product: 'New York No. 1 Lake Park',
-        category: 'John Brown',
-        account: '￥300,000.00',
-        price: 'New York No. 1 Lake Park',
-      },
-      {
-        key: '4',
-        orderNumber: 'John Brown',
-        orderTime: '￥300,000.00',
-        product: 'New York No. 1 Lake Park',
-        category: 'John Brown',
-        account: '￥300,000.00',
-        price: 'New York No. 1 Lake Park',
-      },
-      {
-        key: '5',
-        orderNumber: 'John Brown',
-        orderTime: '￥300,000.00',
-        product: 'New York No. 1 Lake Park',
-        category: 'John Brown',
-        account: '￥300,000.00',
-        price: 'New York No. 1 Lake Park',
-      },
-      {
-        key: '6',
-        orderNumber: 'John Brown',
-        orderTime: '￥300,000.00',
-        product: 'New York No. 1 Lake Park',
-        category: 'John Brown',
-        account: '￥300,000.00',
-        price: 'New York No. 1 Lake Park',
-      },
-      {
-        key: '7',
-        orderNumber: 'John Brown',
-        orderTime: '￥300,000.00',
-        product: 'New York No. 1 Lake Park',
-        category: 'John Brown',
-        account: '￥300,000.00',
-        price: 'New York No. 1 Lake Park',
-      },
-      {
-        key: '8',
-        orderNumber: 'John Brown',
-        orderTime: '￥300,000.00',
-        product: 'New York No. 1 Lake Park',
-        category: 'John Brown',
-        account: '￥300,000.00',
-        price: 'New York No. 1 Lake Park',
-      },
-      {
-        key: '9',
-        orderNumber: 'John Brown',
-        orderTime: '￥300,000.00',
-        product: 'New York No. 1 Lake Park',
-        category: 'John Brown',
-        account: '￥300,000.00',
-        price: 'New York No. 1 Lake Park',
-      },
-    ];
+  // 获取所有订单
+  getOrders = async () => {
+    const result = await reqOrders()
+    if (result.status === 0) {
+      const orders = result.data
+      this.setState({
+        orders
+      })
+    }
+  }
+
+  componentWillMount() {
+    this.initColumns()
+  }
+
+  componentDidMount() {
+    this.getOrders()
+  }
+
+  render() {
+
+    const {orders} = this.state
 
     return (
       <Card title="订单管理">
-        <Table
-          columns={columns}
-          dataSource={data}
-          bordered
-        />,
+        <Table columns={this.columns} dataSource={orders} bordered style={{height: 620}}/>
       </Card>
     )
   }
