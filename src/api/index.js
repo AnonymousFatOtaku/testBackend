@@ -34,6 +34,14 @@ export const reqRoles = () => ajax('/manage/role/list')
 export const reqAddRole = (roleName) => ajax('/manage/role/add', {roleName}, 'POST')
 // 更新角色
 export const reqUpdateRole = (role) => ajax('/manage/role/update', role, 'POST')
+// 获取所有用户的列表
+export const reqUsers = () => ajax('/manage/user/list')
+// 删除指定用户
+export const reqDeleteUser = (userId) => ajax('/manage/user/delete', {userId}, 'POST')
+// 添加/更新用户
+export const reqAddOrUpdateUser = (user) => ajax('/manage/user/' + (user._id ? 'update' : 'add'), user, 'POST')
+// 获取所有订单的列表
+export const reqOrders = () => ajax('/manage/order/list')
 
 // 获取当前IP所在地天气
 export const reqWeather = () => {
