@@ -137,7 +137,7 @@ export default class User extends Component {
       })
     } else { // 所有验证都通过才执行添加/修改操作
       const {users} = this.state
-      console.log(users, typeof users, users.length, users[0])
+      // console.log(users, typeof users, users.length, users[0])
       for (let i = 0; i < users.length; i++) { // 判定新增的用户是否已存在
         // console.log(users[i].username)
         if (user.username === users[i].username) {
@@ -242,7 +242,7 @@ export default class User extends Component {
               <Input placeholder="请输入邮箱" style={{width: 400, float: "right"}} defaultValue={user.email}/>
             </Form.Item>
             <Form.Item name="role_id" label="角色：">
-              <Select defaultValue={user.role_id}>
+              <Select defaultValue={user.role_id} placeholder="请选择角色" style={{width:400,marginLeft:2}}>
                 {
                   roles.map(role => <Option key={role._id} value={role._id}>{role.name}</Option>)
                 }

@@ -99,28 +99,61 @@ export default class Category extends Component {
 
   // 添加分类
   addCategory = async () => {
+
     // 隐藏确认框
     this.setState({
       visible: 0
     })
+
     // 获取到选中的父类ID和输入的新分类名
     const parentId = this.parentId
     const {categoryName} = this.formRef.current.getFieldsValue({categoryName: String})
     // console.log(parentId, categoryName)
-    // 提交添加分类的请求
-    const result = await reqAddCategory(categoryName, parentId)
-    // console.log(result.status, parentId)
-    // 如果添加成功刷新显示并弹出提示成功的消息
-    if (result.status === 0) {
-      // 如果是在当前分类下添加的新分类则刷新显示当前分类
-      if (parentId === this.state.parentId || parentId === undefined) {
-        this.getCategorys()
-      } else if (parentId === '0') { // 如果是在二级分类列表下添加一级分类则重新获取一级分类列表，但不需要显示一级列表
-        this.getCategorys('0')
+
+    let {categorys} = this.state
+    // 判定目前新增的是一级分类还是二级分类，undefined或"0"即为一级分类
+    if (parentId === undefined || parentId === "0") {
+      // console.log("一级分类")
+      for (let i = 0; i < categorys.length; i++) { // 判定新增的用户是否已存在
+        // console.log(categorys[i].name)
+        if (categoryName === categorys[i].name) {
+          message.error('该分类已存在');
+          return
+        }
       }
-      message.success('已成功添加新分类：' + categoryName);
-    } else { // 添加失败也要弹出消息提示
-      message.error('分类添加失败请检查后重试');
+    } else { // 新增的是二级分类，先获取该分类下所有二级分类
+      // console.log("二级分类")
+      const result = await reqCategorys(parentId)
+      const subCategorys = result.data
+      // console.log(result,subCategorys)
+      for (let i = 0; i < subCategorys.length; i++) { // 判定新增的用户是否已存在
+        // console.log(subCategorys[i].name)
+        if (categoryName === subCategorys[i].name) {
+          message.error('该分类已存在');
+          return
+        }
+      }
+    }
+
+    // 判定输入内容是否为空或包含空格
+    if (categoryName === null || categoryName === undefined || categoryName.indexOf(' ') === 0 || categoryName === "") {
+      message.error('分类名称不能为空或以空格开头');
+    } else {
+      // 提交添加分类的请求
+      const result = await reqAddCategory(categoryName, parentId)
+      // console.log(result.status, parentId)
+      // 如果添加成功刷新显示并弹出提示成功的消息
+      if (result.status === 0) {
+        // 如果是在当前分类下添加的新分类则刷新显示当前分类
+        if (parentId === this.state.parentId || parentId === undefined) {
+          this.getCategorys()
+        } else if (parentId === '0') { // 如果是在二级分类列表下添加一级分类则重新获取一级分类列表，但不需要显示一级列表
+          this.getCategorys('0')
+        }
+        message.success('已成功添加新分类：' + categoryName);
+      } else { // 添加失败也要弹出消息提示
+        message.error('分类添加失败请检查后重试');
+      }
     }
   };
 
@@ -135,17 +168,46 @@ export default class Category extends Component {
 
   // 更新分类
   updateCategory = async () => {
+
     // 隐藏确定框
     this.setState({
       visible: 0
     })
+
     // 准备数据
     const categoryId = this.category._id
     const {categoryName} = this.formRef.current.getFieldsValue({categoryName: String})
     // console.log(categoryId, categoryName, typeof categoryName)
+
+    let {categorys} = this.state
+    let parentId = this.category.parentId
+    // 判定目前新增的是一级分类还是二级分类，undefined或"0"即为一级分类
+    if (parentId === undefined || parentId === "0") {
+      // console.log("一级分类")
+      for (let i = 0; i < categorys.length; i++) { // 判定新增的用户是否已存在
+        // console.log(categorys[i].name)
+        if (categoryName === categorys[i].name) {
+          message.error('该分类已存在');
+          return
+        }
+      }
+    } else { // 新增的是二级分类，先获取该分类下所有二级分类
+      // console.log("二级分类")
+      const result = await reqCategorys(parentId)
+      const subCategorys = result.data
+      // console.log(result,subCategorys)
+      for (let i = 0; i < subCategorys.length; i++) { // 判定新增的用户是否已存在
+        // console.log(subCategorys[i].name)
+        if (categoryName === subCategorys[i].name) {
+          message.error('该分类已存在');
+          return
+        }
+      }
+    }
+
     // 判定输入内容是否为空或包含空格
     if (categoryName === null || categoryName === undefined || categoryName.indexOf(' ') === 0 || categoryName === "") {
-      message.error('分类名称未作修改或为空/包含空格');
+      message.error('分类名称未作修改或为空/以空格开头');
     } else {
       // 提交修改分类的请求
       const result = await reqUpdateCategory({categoryId, categoryName})
@@ -211,8 +273,8 @@ export default class Category extends Component {
         <Modal title="添加分类" visible={visible === 1} onOk={this.addCategory} onCancel={this.handleCancel} destroyOnClose>
           {/* <Modal/>和Form一起配合使用时，设置destroyOnClose也不会在Modal关闭时销毁表单字段数据，需要设置<Form preserve={false}/> */}
           <Form preserve={false} ref={this.formRef}>
-            <Form.Item>
-              <Select defaultValue='0' style={{width: 472, marginBottom: 20}} onSelect={(value) => {
+            <Form.Item label="所属分类：">
+              <Select defaultValue="0" style={{marginBottom: 20}} placeholder="请选择所属分类" onSelect={(value) => {
                 this.parentId = value
                 // console.log(this.parentId)
               }}>
@@ -223,7 +285,9 @@ export default class Category extends Component {
                 }
               </Select>
             </Form.Item>
-            <Form.Item name="categoryName">
+            <Form.Item name="categoryName" label="分类名称：" rules={[
+              {whitespace: true, message: '分类名称不能为空或以空格开头'}
+            ]}>
               <Input placeholder="请输入分类名称"/>
             </Form.Item>
           </Form>
@@ -233,7 +297,7 @@ export default class Category extends Component {
           <Form preserve={false} ref={this.formRef}>
             {/* 设置whitespace为true禁止纯空格 */}
             <Form.Item name="categoryName" rules={[
-              {required: true, whitespace: true, message: '分类名称不能为空或包含空格'}
+              {whitespace: true, message: '分类名称不能为空或以空格开头'}
             ]}>
               <Input placeholder="请输入分类名称" defaultValue={category.name}/>
             </Form.Item>
