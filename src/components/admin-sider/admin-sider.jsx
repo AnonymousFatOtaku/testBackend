@@ -24,8 +24,14 @@ const {SubMenu} = Menu;
 class AdminSider extends Component {
 
   render() {
+
     // 获取当前请求的路由路径
-    const path = this.props.location.pathname
+    let path = this.props.location.pathname
+
+    // 二级路由下保持选中一级路由
+    if (path === "/product/info" || path === "/product/addupdate") {
+      path = "/product"
+    }
 
     // 在刷新后保持当前选中的子菜单项所在菜单列表为展开状态
     if (path === "/category" || path === "/product") {
