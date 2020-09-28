@@ -145,7 +145,7 @@ export default class Category extends Component {
     // console.log(categoryId, categoryName, typeof categoryName)
     // 判定输入内容是否为空或包含空格
     if (categoryName === null || categoryName === undefined || categoryName.indexOf(' ') === 0 || categoryName === "") {
-      message.error('分类名称不能为空或包含空格');
+      message.error('分类名称未作修改或为空/包含空格');
     } else {
       // 提交修改分类的请求
       const result = await reqUpdateCategory({categoryId, categoryName})

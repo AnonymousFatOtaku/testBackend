@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import {Button, Card, Space, Table, Modal, Select, Input, Form, message} from 'antd';
 import {formateDate} from "../../utils/dateUtils"
 import {reqDeleteUser, reqUsers, reqAddOrUpdateUser} from "../../api/index";
+import memoryUtils from '../../utils/memoryUtils'
 import './user.less'
 
 export default class User extends Component {
@@ -81,16 +82,20 @@ export default class User extends Component {
 
   // 删除指定用户
   deleteUser = (user) => {
-    Modal.confirm({
-      title: `确认删除${user.username}吗?`,
-      onOk: async () => {
-        const result = await reqDeleteUser(user._id)
-        if (result.status === 0) {
-          message.success('删除用户成功')
-          this.getUsers()
+    if (memoryUtils.user.username === user.username) {
+      message.warning('不能删除当前登录的用户');
+    } else {
+      Modal.confirm({
+        title: `确认删除${user.username}吗?`,
+        onOk: async () => {
+          const result = await reqDeleteUser(user._id)
+          if (result.status === 0) {
+            message.success('删除用户成功')
+            this.getUsers()
+          }
         }
-      }
-    })
+      })
+    }
   }
 
   // 添加/修改用户
@@ -100,18 +105,59 @@ export default class User extends Component {
     })
     // 收集输入数据
     const user = this.formRef.current.getFieldsValue({user: Object})
-    // console.log(user)
-    this.formRef.current.resetFields()
-    // 如果是更新需要给user指定_id属性
-    if (this.user) {
-      user._id = this.user._id
-    }
-    // 提交添加的请求
-    const result = await reqAddOrUpdateUser(user)
-    // 刷新列表显示
-    if (result.status === 0) {
-      message.success(`${this.user ? '修改' : '添加'}用户成功`)
-      this.getUsers()
+    // console.log("添加/修改" + user)
+    let uapReg = /^[a-zA-Z0-9_]{3,12}$/
+    let phoneReg = /^1[3456789]\d{9}$/
+    let emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/
+    // 对所有输入内容依次进行验证，验证不通过不关闭窗口且不执行任何操作
+    if (!uapReg.test(user.username) || user.username === undefined) {
+      message.error('用户名只能由3-12个英文、数字或下划线组成');
+      this.setState({
+        visible: true
+      })
+    } else if (!uapReg.test(user.password) || user.password === undefined) {
+      message.error('密码只能由3-12个英文、数字或下划线组成');
+      this.setState({
+        visible: true
+      })
+    } else if (!phoneReg.test(user.phone)) {
+      message.error('手机号格式不正确');
+      this.setState({
+        visible: true
+      })
+    } else if (!emailReg.test(user.email)) {
+      message.error('邮箱格式不正确');
+      this.setState({
+        visible: true
+      })
+    } else if (user.role_id === undefined) {
+      message.error('请选择角色');
+      this.setState({
+        visible: true
+      })
+    } else { // 所有验证都通过才执行添加/修改操作
+      const {users} = this.state
+      console.log(users, typeof users, users.length, users[0])
+      for (let i = 0; i < users.length; i++) { // 判定新增的用户是否已存在
+        // console.log(users[i].username)
+        if (user.username === users[i].username) {
+          message.error('该用户已存在');
+          return
+        }
+      }
+      // 重置所有输入内容
+      this.formRef.current.resetFields()
+      // 如果是更新需要给user指定_id属性
+      if (this.user) {
+        user._id = this.user._id
+      }
+      // 提交添加的请求
+      const result = await reqAddOrUpdateUser(user)
+      // 刷新列表显示
+      if (result.status === 0) {
+        message.success(`${this.user ? '修改' : '添加'}用户成功`)
+        this.getUsers()
+      }
     }
   }
 
@@ -148,6 +194,7 @@ export default class User extends Component {
 
     const {users, roles, visible} = this.state
     const user = this.user || {}
+    console.log(user)
 
     // 顶部左侧按钮
     const title = (
@@ -163,22 +210,39 @@ export default class User extends Component {
         <Table columns={this.columns} dataSource={users} bordered style={{height: 613}}
                pagination={{defaultPageSize: 8}}/>
         <Modal title={user._id ? '修改用户' : '添加用户'} visible={visible} onOk={this.addOrUpdateUser}
-               onCancel={this.handleCancel}>
-          <Form ref={this.formRef}>
-            <Form.Item name="username" label="用户名：">
-              <Input placeholder="请输入用户名" style={{width: 400, float: "right"}}/>
+               onCancel={this.handleCancel} destroyOnClose>
+          <Form preserve={false} ref={this.formRef}>
+            <Form.Item name="username" label="用户名：" rules={[
+              {message: '请输入用户名'},
+              {pattern: /^[a-zA-Z0-9_]{3,12}$/, message: '用户名只能由3-12个英文、数字或下划线组成'},
+            ]}>
+              <Input placeholder="请输入用户名" style={{width: 400, float: "right"}} defaultValue={user.username}/>
             </Form.Item>
-            <Form.Item name="password" label="密码：">
-              <Input type='password' placeholder="请输入密码" style={{width: 400, float: "right"}}/>
+            <Form.Item name="password" label="密码：" rules={[
+              {message: '请输入密码'},
+              {pattern: /^[a-zA-Z0-9_]{3,12}$/, message: '密码只能由3-12个英文、数字或下划线组成'},
+            ]}>
+              <Input.Password type='password' placeholder="请输入密码" style={{width: 400, float: "right"}}
+                              defaultValue={user.password}/>
             </Form.Item>
-            <Form.Item name="phone" label="手机号：">
-              <Input placeholder="请输入手机号" style={{width: 400, float: "right"}}/>
+            <Form.Item name="phone" label="手机号：" rules={[
+              {message: '请输入手机号'},
+              {min: 11, max: 11, message: '手机号长度应为11位'},
+              {pattern: /^1[3456789]\d{9}$/, message: '手机号格式不正确'},
+            ]}>
+              <Input placeholder="请输入手机号" style={{width: 400, float: "right"}} defaultValue={user.phone}/>
             </Form.Item>
-            <Form.Item name="email" label="邮箱：">
-              <Input placeholder="请输入邮箱" style={{width: 400, float: "right"}}/>
+            <Form.Item name="email" label="邮箱：" rules={[
+              {message: '请输入邮箱'},
+              {
+                pattern: /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/,
+                message: '邮箱格式不正确'
+              },
+            ]}>
+              <Input placeholder="请输入邮箱" style={{width: 400, float: "right"}} defaultValue={user.email}/>
             </Form.Item>
             <Form.Item name="role_id" label="角色：">
-              <Select>
+              <Select defaultValue={user.role_id}>
                 {
                   roles.map(role => <Option key={role._id} value={role._id}>{role.name}</Option>)
                 }
