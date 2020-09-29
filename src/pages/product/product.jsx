@@ -31,7 +31,7 @@ export default class Product extends Component {
         render: (price) => '¥' + price  // 当前指定了对应的属性，传入的是对应的属性值
       },
       {
-        width: 100,
+        width: 120,
         title: '状态',
         render: (product) => {
           const {status, _id} = product
@@ -41,7 +41,8 @@ export default class Product extends Component {
               <Button type='primary' onClick={() => this.updateStatus(_id, newStatus)}>
                 {status === true ? '下架' : '上架'}
               </Button>
-              <span>{status === true ? '在售' : '已下架'}</span>
+              <br/>
+              <span>状态：{status === true ? '在售' : '已下架'}</span>
             </div>
           )
         }

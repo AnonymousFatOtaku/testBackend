@@ -194,7 +194,7 @@ export default class User extends Component {
 
     const {users, roles, visible} = this.state
     const user = this.user || {}
-    console.log(user)
+    // console.log(user)
 
     // 顶部左侧按钮
     const title = (
@@ -213,27 +213,23 @@ export default class User extends Component {
                onCancel={this.handleCancel} destroyOnClose>
           <Form preserve={false} ref={this.formRef}>
             <Form.Item name="username" label="用户名：" rules={[
-              {message: '请输入用户名'},
               {pattern: /^[a-zA-Z0-9_]{3,12}$/, message: '用户名只能由3-12个英文、数字或下划线组成'},
             ]}>
               <Input placeholder="请输入用户名" style={{width: 400, float: "right"}} defaultValue={user.username}/>
             </Form.Item>
             <Form.Item name="password" label="密码：" rules={[
-              {message: '请输入密码'},
               {pattern: /^[a-zA-Z0-9_]{3,12}$/, message: '密码只能由3-12个英文、数字或下划线组成'},
             ]}>
               <Input.Password type='password' placeholder="请输入密码" style={{width: 400, float: "right"}}
                               defaultValue={user.password}/>
             </Form.Item>
             <Form.Item name="phone" label="手机号：" rules={[
-              {message: '请输入手机号'},
               {min: 11, max: 11, message: '手机号长度应为11位'},
               {pattern: /^1[3456789]\d{9}$/, message: '手机号格式不正确'},
             ]}>
               <Input placeholder="请输入手机号" style={{width: 400, float: "right"}} defaultValue={user.phone}/>
             </Form.Item>
             <Form.Item name="email" label="邮箱：" rules={[
-              {message: '请输入邮箱'},
               {
                 pattern: /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/,
                 message: '邮箱格式不正确'
@@ -242,7 +238,7 @@ export default class User extends Component {
               <Input placeholder="请输入邮箱" style={{width: 400, float: "right"}} defaultValue={user.email}/>
             </Form.Item>
             <Form.Item name="role_id" label="角色：">
-              <Select defaultValue={user.role_id} placeholder="请选择角色" style={{width:400,marginLeft:2}}>
+              <Select defaultValue={user.role_id} placeholder="请选择角色" style={{width: 400, marginLeft: 2}}>
                 {
                   roles.map(role => <Option key={role._id} value={role._id}>{role.name}</Option>)
                 }

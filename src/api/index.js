@@ -42,6 +42,8 @@ export const reqDeleteUser = (userId) => ajax('/manage/user/delete', {userId}, '
 export const reqAddOrUpdateUser = (user) => ajax('/manage/user/' + (user._id ? 'update' : 'add'), user, 'POST')
 // 获取所有订单的列表
 export const reqOrders = () => ajax('/manage/order/list')
+// 删除指定名称的图片
+export const reqDeleteImg = (name) => ajax('/manage/img/delete', {name}, 'POST')
 
 // 获取当前IP所在地天气
 export const reqWeather = () => {

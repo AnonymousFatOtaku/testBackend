@@ -20,22 +20,22 @@ export default class ProductInfo extends Component {
   async componentDidMount() {
     // 得到当前商品的分类ID
     const {pCategoryId, categoryId} = this.props.location.state.product
-    console.log(pCategoryId,categoryId)
+    // console.log(pCategoryId,categoryId)
     // 根据ID获取到分类名称
     if (pCategoryId === '0') { // 一级分类下的商品
       const result = await reqCategory(categoryId)
       const cName1 = result.data.name
-      console.log(result)
-      console.log(cName1)
+      // console.log(result)
+      // console.log(cName1)
       this.setState({cName1})
     } else { // 二级分类下的商品
       // 一次性发送多个请求，只有都成功了才正常处理
       const results = await Promise.all([reqCategory(pCategoryId), reqCategory(categoryId)])
       const cName1 = results[0].data.name
       const cName2 = results[1].data.name
-      console.log(results)
-      console.log(cName1)
-      console.log(cName2)
+      // console.log(results)
+      // console.log(cName1)
+      // console.log(cName2)
       this.setState({
         cName1,
         cName2
@@ -47,6 +47,8 @@ export default class ProductInfo extends Component {
     // 读取携带过来的state数据
     const {name, desc, price, detail, imgs} = this.props.location.state.product
     const {cName1, cName2} = this.state
+
+    // console.log(detail, imgs)
 
     const title = (
       <span>
@@ -79,7 +81,13 @@ export default class ProductInfo extends Component {
             <span>
               {
                 imgs.map(img => (
-                  <img key={img} src={img} alt="img"/>
+                  <img
+                    key={img}
+                    src={'http://localhost:5000/upload/' + img}
+                    className="product-img"
+                    alt="img"
+                    style={{height: 200, width: 200, marginRight: 20}}
+                  />
                 ))
               }
             </span>

@@ -12,6 +12,7 @@
     "axios": "^0.20.0",
     "babel-plugin-import": "^1.13.0",
     "bizcharts": "^4.0.14",
+    "braft-editor": "^2.3.9",
     "craco-less": "^1.17.0",
     "customize-cra": "^1.0.0",
     "draft-js": "^0.11.7",

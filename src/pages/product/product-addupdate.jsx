@@ -1,81 +1,23 @@
 // 商品添加、修改路由
 import React, {Component} from 'react'
-import {Card, Input, Form, Cascader, Upload, message, Button, Modal} from 'antd';
-import {
-  ArrowLeftOutlined,
-  LoadingOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
-import {Editor} from 'react-draft-wysiwyg'
+import {Card, Input, Form, Cascader, message, Button} from 'antd';
+import {ArrowLeftOutlined,} from '@ant-design/icons';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import {reqCategorys, reqAddOrUpdateProduct} from '../../api'
-
-function getBase64(img, callback) {
-  const reader = new FileReader();
-  reader.addEventListener('load', () => callback(reader.result));
-  reader.readAsDataURL(img);
-}
-
-function beforeUpload(file) {
-  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-  if (!isJpgOrPng) {
-    message.error('You can only upload JPG/PNG file!');
-  }
-  const isLt2M = file.size / 1024 / 1024 < 2;
-  if (!isLt2M) {
-    message.error('Image must smaller than 2MB!');
-  }
-  return isJpgOrPng && isLt2M;
-}
+import PicturesWall from './pictures-wall'
+import RichTextEditor from './rich-text-editor'
+import {reqCategorys, reqAddOrUpdateProduct, reqCategory} from '../../api'
 
 export default class ProductAddUpdate extends Component {
 
   state = {
-    loading: false,
-    showRichText: false,
-    editorContent: '',
-    editorState: '',
     options: [],
   };
 
-  handleChange = info => {
-    if (info.file.status === 'uploading') {
-      this.setState({loading: true});
-      return;
-    }
-    if (info.file.status === 'done') {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj, imageUrl =>
-        this.setState({
-          imageUrl,
-          loading: false,
-        }),
-      );
-    }
-  };
-
-  handleClearContent = () => {  //清空文本
-    this.setState({
-      editorState: ''
-    })
-  }
-
-  handleGetText = () => {    //获取文本内容
-    this.setState({
-      showRichText: true
-    })
-  }
-
-  onEditorStateChange = (editorState) => {   //编辑器的状态
-    this.setState({
-      editorState
-    })
-  }
-
-  onEditorChange = (editorContent) => {   //编辑器内容的状态
-    this.setState({
-      editorContent
-    })
+  constructor(props) {
+    super(props)
+    // 创建用来保存ref标识的标签对象的容器
+    this.pw = React.createRef()
+    this.editor = React.createRef()
   }
 
   // 初始化商品分类菜单
@@ -118,6 +60,28 @@ export default class ProductAddUpdate extends Component {
         this.initOptions(categorys)
       } else { // 二级列表
         return categorys  // 返回二级列表，当前async函数返回的promsie就会成功且value为categorys
+      }
+    }
+  }
+
+  // 根据商品分类ID获取分类名
+  getCategorysName = async (pCategoryId, categoryId) => {
+    if (pCategoryId === "0") { // 该商品属于一级分类，只需要获取一级分类名
+      const pResult = await reqCategory(categoryId)
+      // console.log(categoryId, pResult, pResult.status)
+      if (pResult.status === 0) {
+        const pCategoryName = pResult.data.name
+        // console.log(pCategoryName)
+        return pCategoryName
+      }
+    } else { // 该商品属于二级分类，需要获取一级和二级分类名
+      const pResult = await reqCategory(pCategoryId)
+      const result = await reqCategory(categoryId)
+      if (pResult.status === 0 && result.status === 0) {
+        const pCategoryName = pResult.data.name
+        const categoryName = result.data.name
+        // console.log(pCategoryName, categoryName)
+        return {pCategoryName, categoryName}
       }
     }
   }
@@ -169,27 +133,23 @@ export default class ProductAddUpdate extends Component {
 
   render() {
     const {isUpdate, product} = this
-    const {pCategoryId, categoryId} = product
-    const {loading, imageUrl, editorState, editorContent} = this.state;
+    const {pCategoryId, categoryId, imgs, detail} = product
+    const {options} = this.state;
+
+    // console.log(pCategoryId, categoryId)
+    // console.log(this.getCategorysName(pCategoryId, categoryId))
 
     // 用来接收级联分类ID的数组
     const categoryIds = []
 
-    if (isUpdate) { // 商品是一个一级分类的商品
-      if (pCategoryId === '0') {
+    if (isUpdate) {
+      if (pCategoryId === '0') { // 商品是一个一级分类的商品
         categoryIds.push(categoryId)
       } else { // 商品是一个二级分类的商品
         categoryIds.push(pCategoryId)
         categoryIds.push(categoryId)
       }
     }
-
-    const uploadButton = (
-      <div>
-        {loading ? <LoadingOutlined/> : <PlusOutlined/>}
-        <div style={{marginTop: 8}}>Upload</div>
-      </div>
-    );
 
     // 顶部左侧标题
     const title = (
@@ -203,79 +163,94 @@ export default class ProductAddUpdate extends Component {
     const onFinish = async values => {
       // console.log('Success:', values);
       // 收集输入的数据
-      const {name, desc, price, categoryIds} = values
-      let pCategoryId, categoryId
-      if (categoryIds.length === 1) {
-        pCategoryId = '0'
-        categoryId = categoryIds[0]
+      let {name, desc, price, categoryIds} = values
+      // console.log(values)
+      if (this.product.status) { // 判定是否是修改，如果是修改则要给未改动的参数赋原值
+        // console.log(this.product)
+        if (name === undefined) {
+          name = this.product.name
+        }
+        if (desc === undefined) {
+          desc = this.product.desc
+        }
+        if (price === undefined) {
+          price = this.product.price
+        }
+      }
+      // console.log(name, desc, price, categoryIds)
+      const imgs = this.pw.current.getImgs()
+      const detail = this.editor.current.getDetail()
+      // console.log(imgs, detail)
+
+      let nameReg = /^[\u4e00-\u9fa5_a-zA-Z0-9_]{3,12}$/
+      let descReg = /^[\u4e00-\u9fa5_a-zA-Z0-9_]{3,50}$/
+      let priceReg = /^[0-9]{1,12}$/
+      // 对所有输入内容依次进行验证，验证不通过弹出提示且不执行任何操作
+      if (!nameReg.test(name) || name === undefined) {
+        message.error('商品名称只能由3-12个汉字、英文、数字或下划线组成');
+      } else if (!descReg.test(desc) || desc === undefined) {
+        message.error('商品描述只能由3-50个汉字、英文、数字或下划线组成');
+      } else if (!priceReg.test(price) || price === undefined) {
+        message.error('商品价格只能由1-12个数字组成');
+      } else if (categoryIds === undefined) {
+        message.error('请选择商品分类');
       } else {
-        pCategoryId = categoryIds[0]
-        categoryId = categoryIds[1]
-      }
-      // 获取富文本框内容
-      let detail = ""
-      for (let i = 0; i < this.state.editorContent.blocks.length; i++) {
-        detail += this.state.editorContent.blocks[i].text
-        console.log(i, detail);
-      }
-      // 将收集到的数据封装成product对象
-      const product = {name, desc, price, pCategoryId, categoryId, detail}
-      console.log(name, desc, price, pCategoryId, categoryId, detail);
-      // 如果是更新则需要添加_id
-      if (this.isUpdate) {
-        product._id = this.product._id
-      }
-      // 调用接口请求函数去添加/更新
-      const result = await reqAddOrUpdateProduct(product)
-      // 根据结果提示
-      if (result.status === 0) {
-        message.success(`${this.isUpdate ? '更新' : '添加'}商品成功`)
-        this.props.history.goBack()
-      } else {
-        message.error(`${this.isUpdate ? '更新' : '添加'}商品失败`)
+        // 获取商品分类
+        let pCategoryId, categoryId
+        if (categoryIds.length === 1) { // 一级分类
+          pCategoryId = '0'
+          categoryId = categoryIds[0]
+        } else { // 二级分类
+          pCategoryId = categoryIds[0]
+          categoryId = categoryIds[1]
+        }
+
+        // 将收集到的数据封装成product对象
+        const product = {name, desc, price, pCategoryId, categoryId, imgs, detail}
+        // console.log(name, desc, price, pCategoryId, categoryId, imgs, detail);
+        // 如果是更新则需要添加_id
+        if (this.isUpdate) {
+          product._id = this.product._id
+        }
+        // 调用接口请求函数去添加/更新
+        const result = await reqAddOrUpdateProduct(product)
+        // 根据结果提示
+        if (result.status === 0) {
+          message.success(`${this.isUpdate ? '更新' : '添加'}商品成功`)
+          this.props.history.goBack()
+        } else {
+          message.error(`${this.isUpdate ? '更新' : '添加'}商品失败`)
+        }
       }
     };
 
     return (
       <Card title={title} style={{height: 800}}>
         <Form ref={this.formRef} onFinish={onFinish}>
-          <Form.Item name="name" label="商品名称：">
+          <Form.Item name="name" label="商品名称：" rules={[
+            {pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9_]{3,12}$/, message: '商品名称只能由3-12个汉字、英文、数字或下划线组成'},
+          ]}>
             <Input placeholder="请输入商品名称" style={{width: 400}} defaultValue={product.name}/>
           </Form.Item>
-          <Form.Item name="desc" label="商品描述：">
+          <Form.Item name="desc" label="商品描述：" rules={[
+            {pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9_]{3,50}$/, message: '商品描述只能由3-50个汉字、英文、数字或下划线组成'},
+          ]}>
             <Input placeholder="请输入商品描述" style={{width: 400}} defaultValue={product.desc}/>
           </Form.Item>
-          <Form.Item name="price" label="商品价格：">
+          <Form.Item name="price" label="商品价格：" rules={[
+            {pattern: /^[0-9]{1,12}$/, message: '商品价格只能由1-12个数字组成'},
+          ]}>
             <Input placeholder="请输入商品价格" style={{width: 400}} addonAfter="元" defaultValue={product.price}/>
           </Form.Item>
           <Form.Item name="categoryIds" label="商品分类：">
-            <Cascader options={this.state.options} loadData={this.loadData} placeholder="请选择商品分类" style={{width: 400}}/>
+            <Cascader options={options} loadData={this.loadData} placeholder="请选择商品分类" style={{width: 400}}/>
           </Form.Item>
           <Form.Item label="商品图片：">
-            <Upload
-              name="avatar"
-              listType="picture-card"
-              className="avatar-uploader"
-              showUploadList={false}
-              action="/manage/img/upload"
-              beforeUpload={beforeUpload}
-              onChange={this.handleChange}
-            >
-              {imageUrl ? <img src={imageUrl} alt="avatar" style={{width: '100%'}}/> : uploadButton}
-            </Upload>
+            <PicturesWall ref={this.pw} imgs={imgs}/>
           </Form.Item>
           <Form.Item label="商品详情：">
             <div>
-              <Editor
-                editorState={editorState}
-                editorStyle={{border: '1px solid', height: 180}}
-                onEditorStateChange={this.onEditorStateChange}
-                onContentStateChange={this.onEditorChange}
-                toolbarClassName="toolbarClassName"
-                wrapperClassName="wrapperClassName"
-                editorClassName="editorClassName"
-                onEditorStateChange={this.onEditorStateChange}
-              />
+              <RichTextEditor ref={this.editor} detail={detail}/>
             </div>
           </Form.Item>
           <Form.Item style={{marginTop: 50, textAlign: "center"}}>

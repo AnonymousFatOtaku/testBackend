@@ -296,7 +296,7 @@ export default class Category extends Component {
                destroyOnClose>
           <Form preserve={false} ref={this.formRef}>
             {/* 设置whitespace为true禁止纯空格 */}
-            <Form.Item name="categoryName" rules={[
+            <Form.Item name="categoryName" label="分类名称：" rules={[
               {whitespace: true, message: '分类名称不能为空或以空格开头'}
             ]}>
               <Input placeholder="请输入分类名称" defaultValue={category.name}/>
