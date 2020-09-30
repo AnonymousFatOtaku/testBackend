@@ -136,6 +136,7 @@ export default class ProductAddUpdate extends Component {
     const {pCategoryId, categoryId, imgs, detail} = product
     const {options} = this.state;
 
+    // console.log(options)
     // console.log(pCategoryId, categoryId)
     // console.log(this.getCategorysName(pCategoryId, categoryId))
 
@@ -226,7 +227,9 @@ export default class ProductAddUpdate extends Component {
 
     return (
       <Card title={title} style={{height: 800}}>
-        <Form ref={this.formRef} onFinish={onFinish}>
+        <Form ref={this.formRef} onFinish={onFinish} initialValues={{
+          categoryIds: [pCategoryId, categoryId],
+        }}>
           <Form.Item name="name" label="商品名称：" rules={[
             {pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9_]{3,12}$/, message: '商品名称只能由3-12个汉字、英文、数字或下划线组成'},
           ]}>
