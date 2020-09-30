@@ -1,18 +1,28 @@
 // 角色管理路由
 import React, {Component} from "react";
-import {Button, Card, Table, Modal, Form, Input, Tree} from 'antd';
+import {Button, Card, Table, Modal, Form, Input, message} from 'antd';
 import {reqRoles, reqAddRole, reqUpdateRole} from '../../api'
 import memoryUtils from "../../utils/memoryUtils"
 import {formateDate} from '../../utils/dateUtils'
 import storageUtils from "../../utils/storageUtils";
+import AuthForm from './auth-form'
 
 export default class Role extends Component {
 
   state = {
     roles: [], // 所有角色的列表
-    role: {}, // 选中的角色
-    visible: false, // 是否显示弹窗
-  };
+    role: {}, // 选中的role
+    isShowAdd: false, // 是否显示添加界面
+    isShowAuth: false, // 是否显示设置权限界面
+  }
+
+  formRef = React.createRef();
+
+  constructor(props) {
+    super(props)
+    this.auth = React.createRef()
+  }
+
 
   // 初始化table所有列
   initColumn = () => {
@@ -60,19 +70,78 @@ export default class Role extends Component {
     }
   }
 
-  handleOk = e => {
-    console.log(e);
+  // 添加角色
+  addRole = async () => {
+    // 隐藏确认框
     this.setState({
-      visible: false,
-    });
-  };
+      isShowAdd: false
+    })
+    // 收集输入数据
+    const {roleName} = this.formRef.current.getFieldsValue({roleName: String})
+    // console.log(roleName)
 
-  handleCancel = e => {
-    console.log(e);
+    // 判断角色名是否为空或以空格开头
+    if (roleName === null || roleName === undefined || roleName.indexOf(' ') === 0 || roleName === "") {
+      message.error('角色名不能为空或以空格开头');
+      return
+    }
+
+    // 判断角色名是否重名
+    let {roles} = this.state
+    for (let i = 0; i < roles.length; i++) {
+      // console.log(roles[i].name)
+      if (roleName === roles[i].name) {
+        message.error('该角色已存在');
+        return
+      }
+    }
+
+    // 请求添加
+    const result = await reqAddRole(roleName)
+    // 根据结果提示/更新列表显示
+    if (result.status === 0) {
+      message.success('添加角色成功')
+      // 新产生的角色
+      const role = result.data
+      // 基于原本状态数据更新roles状态
+      this.setState(state => ({
+        roles: [...state.roles, role]
+      }))
+    } else {
+      message.error('添加角色失败')
+    }
+  }
+
+  // 更新角色
+  updateRole = async () => {
+    // 隐藏确认框
     this.setState({
-      visible: false,
-    });
-  };
+      isShowAuth: false
+    })
+    const role = this.state.role
+    // 得到最新的menus
+    const menus = this.auth.current.getMenus()
+    // console.log(menus)
+    role.menus = menus
+    role.auth_time = Date.now()
+    role.auth_name = memoryUtils.user.username
+    // 请求更新
+    const result = await reqUpdateRole(role)
+    if (result.status === 0) {
+      // 如果当前更新的是自己角色的权限强制退出
+      if (role._id === memoryUtils.user.role_id) {
+        memoryUtils.user = {}
+        storageUtils.removeUser()
+        this.props.history.replace('/login')
+        message.success('当前用户角色权限成功')
+      } else {
+        message.success('设置角色权限成功')
+        this.setState({
+          roles: [...this.state.roles]
+        })
+      }
+    }
+  }
 
   componentWillMount() {
     this.initColumn()
@@ -82,90 +151,24 @@ export default class Role extends Component {
     this.getRoles()
   }
 
+  onCancel = () => {
+    this.setState({
+      isShowAdd: false,
+      isShowAuth: false,
+    })
+  }
+
   render() {
 
-    const {roles, role} = this.state
-
-    const treeData = [
-      {
-        title: '平台权限',
-        key: '0-0',
-        children: [
-          {
-            title: '首页',
-            key: '0-0-0',
-          },
-          {
-            title: '商品',
-            key: '0-0-1',
-            children: [
-              {
-                title: '品类管理',
-                key: '0-0-1-0',
-              },
-              {
-                title: '商品管理',
-                key: '0-0-1-1',
-              },
-            ],
-          },
-          {
-            title: '用户管理',
-            key: '0-0-2',
-          },
-          {
-            title: '角色管理',
-            key: '0-0-3',
-          },
-          {
-            title: '图形界面',
-            key: '0-0-4',
-            children: [
-              {
-                title: '柱形图',
-                key: '0-0-4-0',
-              },
-              {
-                title: '折线图',
-                key: '0-0-4-1',
-              },
-              {
-                title: '饼图',
-                key: '0-0-4-2',
-              },
-            ],
-          },
-          {
-            title: '订单管理',
-            key: '0-0-5',
-          },
-        ],
-      },
-    ];
+    const {roles, role, isShowAdd, isShowAuth} = this.state
 
     // 顶部左侧按钮
     const title = (
       <div>
-        <Button type='primary' onClick={() => this.setState({visible: true})}>创建角色</Button>&nbsp;&nbsp;&nbsp;&nbsp;
-        <Button type='primary' disabled={!role._id} onClick={() => this.setState({visible: true})}>设置角色权限</Button>
+        <Button type='primary' onClick={() => this.setState({isShowAdd: true})}>创建角色</Button>&nbsp;&nbsp;&nbsp;&nbsp;
+        <Button type='primary' disabled={!role._id} onClick={() => this.setState({isShowAuth: true})}>设置角色权限</Button>
       </div>
     )
-
-    const onFinish = values => {
-      console.log('Success:', values);
-    };
-
-    const onFinishFailed = errorInfo => {
-      console.log('Failed:', errorInfo);
-    };
-
-    const onSelect = (selectedKeys, info) => {
-      console.log('selected', selectedKeys, info);
-    };
-
-    const onCheck = (checkedKeys, info) => {
-      console.log('onCheck', checkedKeys, info);
-    };
 
     return (
       <Card title={title}>
@@ -180,29 +183,15 @@ export default class Role extends Component {
                  }
                }}
                onRow={this.onRow} style={{height: 613}}/>
-        <Modal
-          title="创建角色"
-          visible={this.state.visible}
-          onOk={this.handleOk}
-          onCancel={this.handleCancel}
-        >
-          <Form
-            name="basic"
-            initialValues={{remember: true}}
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
-          >
-            <Form.Item label="角色名称：" name="username">
-              <Input/>
+        <Modal title="添加角色" visible={isShowAdd} onOk={this.addRole} onCancel={this.onCancel} destroyOnClose>
+          <Form preserve={false} ref={this.formRef}>
+            <Form.Item name='roleName' label='角色名称'>
+              <Input placeholder='请输入角色名称'/>
             </Form.Item>
-            <Tree
-              checkable
-              onSelect={onSelect}
-              onCheck={onCheck}
-              treeData={treeData}
-              defaultExpandAll
-            />
           </Form>
+        </Modal>
+        <Modal title="设置角色权限" visible={isShowAuth} onOk={this.updateRole} onCancel={this.onCancel} destroyOnClose>
+          <AuthForm ref={this.auth} role={role} preserve={false}/>
         </Modal>
       </Card>
     )
