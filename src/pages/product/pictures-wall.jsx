@@ -6,6 +6,23 @@ import {
 } from '@ant-design/icons';
 import {reqDeleteImg} from '../../api'
 
+// 图片格式及大小验证
+function beforeUpload(file, fileList) {
+  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+  if (!isJpgOrPng) {
+    message.error('只能上传JPG/PNG格式图片');
+  }
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isLt2M) {
+    message.error('图片大小不能大于2MB');
+  }
+  // console.log(file, fileList)
+  // 验证不通过不能添加图片
+  fileList.splice(fileList.indexOf(file), 1)
+  // console.log(file, fileList)
+  return isJpgOrPng && isLt2M;
+}
+
 // 用于图片上传的组件
 export default class PicturesWall extends React.Component {
 
@@ -60,6 +77,7 @@ export default class PicturesWall extends React.Component {
   handleChange = async ({file, fileList}) => {
     // console.log('handleChange()', file.status, fileList.length, file === fileList[fileList.length - 1])
     // 一旦上传成功修正当前上传的file的信息(name,url)
+    // console.log(file, fileList)
     if (file.status === 'done') { // 上传图片
       const result = file.response
       if (result.status === 0) {
@@ -100,6 +118,7 @@ export default class PicturesWall extends React.Component {
           name='image' /* 请求参数名 */
           listType="picture-card"  /* 卡片样式 */
           fileList={fileList}  /* 所有已上传图片文件对象的数组 */
+          beforeUpload={beforeUpload}
           onPreview={this.handlePreview}
           onChange={this.handleChange}
         >
