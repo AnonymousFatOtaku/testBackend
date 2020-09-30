@@ -105,7 +105,27 @@ export default class User extends Component {
     })
     // 收集输入数据
     const user = this.formRef.current.getFieldsValue({user: Object})
-    // console.log("添加/修改" + user)
+
+    // 判定是否是修改，如果是修改则要给未改动的参数赋原值
+    if (this.user) {
+      if (user.username === undefined) {
+        user.username = this.user.username
+      }
+      if (user.password === undefined) {
+        user.password = this.user.password
+      }
+      if (user.phone === undefined) {
+        user.phone = this.user.phone
+      }
+      if (user.email === undefined) {
+        user.email = this.user.email
+      }
+      if (user.role_id === undefined) {
+        user.role_id = this.user.role_id
+      }
+    }
+    // console.log(user)
+
     let uapReg = /^[a-zA-Z0-9_]{3,12}$/
     let phoneReg = /^1[3456789]\d{9}$/
     let emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/
@@ -138,11 +158,14 @@ export default class User extends Component {
     } else { // 所有验证都通过才执行添加/修改操作
       const {users} = this.state
       // console.log(users, typeof users, users.length, users[0])
-      for (let i = 0; i < users.length; i++) { // 判定新增的用户是否已存在
-        // console.log(users[i].username)
-        if (user.username === users[i].username) {
-          message.error('该用户已存在');
-          return
+      // 新增之前先判定新增的用户是否已存在
+      if (!this.user) {
+        for (let i = 0; i < users.length; i++) {
+          // console.log(users[i].username)
+          if (user.username === users[i].username) {
+            message.error('该用户已存在');
+            return
+          }
         }
       }
       // 重置所有输入内容
