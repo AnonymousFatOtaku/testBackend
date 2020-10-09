@@ -1,6 +1,6 @@
 // 后台管理主路由左侧导航组件
 import React, {Component} from "react";
-import {Link, withRouter} from "react-router-dom";
+import {Link, Redirect, withRouter} from "react-router-dom";
 import {Menu} from 'antd';
 import {
   PieChartOutlined,
@@ -84,59 +84,66 @@ class AdminSider extends Component {
           <h3>管理后台</h3>
         </Link>
         <Menu selectedKeys={[path]} defaultOpenKeys={[this.openKey]} mode="inline" theme="dark">
-          <Menu.Item key="/home" icon={<HomeOutlined/>} disabled={menus.indexOf("/home") === -1}>
-            <Link to='/home'>
-              首页
-            </Link>
-          </Menu.Item>
-          <SubMenu key="/products" icon={<AppstoreOutlined/>} title="商品"
-                   disabled={menus.indexOf("/products") === -1}>
-            <Menu.Item key="/category" icon={<DatabaseOutlined/>}
-                       disabled={menus.indexOf("/category") === -1}>
-              <Link to='/category'>
-                品类管理
+          {menus.indexOf("/home") != -1 ?
+            <Menu.Item key="/home" icon={<HomeOutlined/>}>
+              <Link to='/home'>
+                首页
               </Link>
-            </Menu.Item>
-            <Menu.Item key="/product" icon={<ShoppingCartOutlined/>}
-                       disabled={menus.indexOf("/product") === -1}>
-              <Link to='/product'>
-                商品管理
+            </Menu.Item> : null}
+          {menus.indexOf("/products") != -1 ?
+            <SubMenu key="/products" icon={<AppstoreOutlined/>} title="商品">
+              {menus.indexOf("/category") != -1 ?
+                <Menu.Item key="/category" icon={<DatabaseOutlined/>}>
+                  <Link to='/category'>
+                    品类管理
+                  </Link>
+                </Menu.Item> : null}
+              {menus.indexOf("/product") != -1 ?
+                <Menu.Item key="/product" icon={<ShoppingCartOutlined/>}>
+                  <Link to='/product'>
+                    商品管理
+                  </Link>
+                </Menu.Item> : null}
+            </SubMenu> : null}
+          {menus.indexOf("/user") != -1 ?
+            <Menu.Item key="/user" icon={<UserOutlined/>}>
+              <Link to='/user'>
+                用户管理
               </Link>
-            </Menu.Item>
-          </SubMenu>
-          <Menu.Item key="/user" icon={<UserOutlined/>} disabled={menus.indexOf("/user") === -1}>
-            <Link to='/user'>
-              用户管理
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/role" icon={<ContactsOutlined/>} disabled={menus.indexOf("/role") === -1}>
-            <Link to='/role'>
-              角色管理
-            </Link>
-          </Menu.Item>
-          <SubMenu key="/charts" icon={<AreaChartOutlined/>} title="图形图表"
-                   disabled={menus.indexOf("/charts") === -1}>
-            <Menu.Item key="/bar" icon={<BarChartOutlined/>} disabled={menus.indexOf("/bar") === -1}>
-              <Link to='/bar'>
-                柱形图
+            </Menu.Item> : null}
+          {menus.indexOf("/role") != -1 ?
+            <Menu.Item key="/role" icon={<ContactsOutlined/>}>
+              <Link to='/role'>
+                角色管理
               </Link>
-            </Menu.Item>
-            <Menu.Item key="/line" icon={<LineChartOutlined/>} disabled={menus.indexOf("/line") === -1}>
-              <Link to='/line'>
-                折线图
+            </Menu.Item> : null}
+          {menus.indexOf("/charts") != -1 ?
+            <SubMenu key="/charts" icon={<AreaChartOutlined/>} title="图形图表">
+              {menus.indexOf("/bar") != -1 ?
+                <Menu.Item key="/bar" icon={<BarChartOutlined/>}>
+                  <Link to='/bar'>
+                    柱形图
+                  </Link>
+                </Menu.Item> : null}
+              {menus.indexOf("/line") != -1 ?
+                <Menu.Item key="/line" icon={<LineChartOutlined/>}>
+                  <Link to='/line'>
+                    折线图
+                  </Link>
+                </Menu.Item> : null}
+              {menus.indexOf("/pie") != -1 ?
+                <Menu.Item key="/pie" icon={<PieChartOutlined/>}>
+                  <Link to='/pie'>
+                    饼图
+                  </Link>
+                </Menu.Item> : null}
+            </SubMenu> : null}
+          {menus.indexOf("/order") != -1 ?
+            <Menu.Item key="/order" icon={<BarsOutlined/>}>
+              <Link to='/order'>
+                订单管理
               </Link>
-            </Menu.Item>
-            <Menu.Item key="/pie" icon={<PieChartOutlined/>} disabled={menus.indexOf("/pie") === -1}>
-              <Link to='/pie'>
-                饼图
-              </Link>
-            </Menu.Item>
-          </SubMenu>
-          <Menu.Item key="/order" icon={<BarsOutlined/>} disabled={menus.indexOf("/order") === -1}>
-            <Link to='/order'>
-              订单管理
-            </Link>
-          </Menu.Item>
+            </Menu.Item> : null}
         </Menu>
       </div>
     )

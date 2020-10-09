@@ -64,28 +64,6 @@ export default class ProductAddUpdate extends Component {
     }
   }
 
-  // 根据商品分类ID获取分类名
-  getCategorysName = async (pCategoryId, categoryId) => {
-    if (pCategoryId === "0") { // 该商品属于一级分类，只需要获取一级分类名
-      const pResult = await reqCategory(categoryId)
-      // console.log(categoryId, pResult, pResult.status)
-      if (pResult.status === 0) {
-        const pCategoryName = pResult.data.name
-        // console.log(pCategoryName)
-        return pCategoryName
-      }
-    } else { // 该商品属于二级分类，需要获取一级和二级分类名
-      const pResult = await reqCategory(pCategoryId)
-      const result = await reqCategory(categoryId)
-      if (pResult.status === 0 && result.status === 0) {
-        const pCategoryName = pResult.data.name
-        const categoryName = result.data.name
-        // console.log(pCategoryName, categoryName)
-        return {pCategoryName, categoryName}
-      }
-    }
-  }
-
   // 加载下一级列表的回调函数
   loadData = async selectedOptions => {
     // 得到选择的option对象
@@ -136,6 +114,7 @@ export default class ProductAddUpdate extends Component {
     const {pCategoryId, categoryId, imgs, detail} = product
     const {options} = this.state;
 
+    console.log(imgs[2])
     // console.log(options)
     // console.log(pCategoryId, categoryId)
     // console.log(this.getCategorysName(pCategoryId, categoryId))
