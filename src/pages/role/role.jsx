@@ -119,7 +119,7 @@ export default class Role extends Component {
       isShowAuth: false
     })
     const role = this.state.role
-    console.log(role.name)
+    // console.log(role.name)
     if (role.name === "超级管理员") {
       message.error('不能修改超级管理员权限');
     } else {

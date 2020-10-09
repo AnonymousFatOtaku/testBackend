@@ -82,19 +82,23 @@ export default class User extends Component {
 
   // 删除指定用户
   deleteUser = (user) => {
-    if (memoryUtils.user.username === user.username) {
-      message.warning('不能删除当前登录的用户');
+    if (user.role_id === "5f74631c0e955025a8439b50") {
+      message.warning('不能删除超级管理员');
     } else {
-      Modal.confirm({
-        title: `确认删除${user.username}吗?`,
-        onOk: async () => {
-          const result = await reqDeleteUser(user._id)
-          if (result.status === 0) {
-            message.success('删除用户成功')
-            this.getUsers()
+      if (memoryUtils.user.username === user.username) {
+        message.warning('不能删除当前登录的用户');
+      } else {
+        Modal.confirm({
+          title: `确认删除${user.username}吗?`,
+          onOk: async () => {
+            const result = await reqDeleteUser(user._id)
+            if (result.status === 0) {
+              message.success('删除用户成功')
+              this.getUsers()
+            }
           }
-        }
-      })
+        })
+      }
     }
   }
 
@@ -124,7 +128,7 @@ export default class User extends Component {
         user.role_id = this.user.role_id
       }
     }
-    console.log(user, this.user)
+    // console.log(user, this.user)
 
     let uapReg = /^[a-zA-Z0-9_]{3,12}$/
     let phoneReg = /^1[3456789]\d{9}$/
