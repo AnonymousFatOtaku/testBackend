@@ -119,26 +119,31 @@ export default class Role extends Component {
       isShowAuth: false
     })
     const role = this.state.role
-    // 得到最新的menus
-    const menus = this.auth.current.getMenus()
-    // console.log(menus)
-    role.menus = menus
-    role.auth_time = Date.now()
-    role.auth_name = memoryUtils.user.username
-    // 请求更新
-    const result = await reqUpdateRole(role)
-    if (result.status === 0) {
-      // 如果当前更新的是自己角色的权限强制退出
-      if (role._id === memoryUtils.user.role_id) {
-        memoryUtils.user = {}
-        storageUtils.removeUser()
-        this.props.history.replace('/login')
-        message.success('当前用户角色权限成功')
-      } else {
-        message.success('设置角色权限成功')
-        this.setState({
-          roles: [...this.state.roles]
-        })
+    console.log(role.name)
+    if (role.name === "超级管理员") {
+      message.error('不能修改超级管理员权限');
+    } else {
+      // 得到最新的menus
+      const menus = this.auth.current.getMenus()
+      // console.log(menus)
+      role.menus = menus
+      role.auth_time = Date.now()
+      role.auth_name = memoryUtils.user.username
+      // 请求更新
+      const result = await reqUpdateRole(role)
+      if (result.status === 0) {
+        // 如果当前更新的是自己角色的权限强制退出
+        if (role._id === memoryUtils.user.role_id) {
+          memoryUtils.user = {}
+          storageUtils.removeUser()
+          this.props.history.replace('/login')
+          message.success('当前用户角色权限成功')
+        } else {
+          message.success('设置角色权限成功')
+          this.setState({
+            roles: [...this.state.roles]
+          })
+        }
       }
     }
   }
@@ -161,6 +166,8 @@ export default class Role extends Component {
   render() {
 
     const {roles, role, isShowAdd, isShowAuth} = this.state
+
+    // console.log(roles)
 
     // 顶部左侧按钮
     const title = (

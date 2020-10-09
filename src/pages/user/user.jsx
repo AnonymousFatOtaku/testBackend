@@ -124,7 +124,7 @@ export default class User extends Component {
         user.role_id = this.user.role_id
       }
     }
-    // console.log(user)
+    console.log(user, this.user)
 
     let uapReg = /^[a-zA-Z0-9_]{3,12}$/
     let phoneReg = /^1[3456789]\d{9}$/
@@ -152,6 +152,11 @@ export default class User extends Component {
       })
     } else if (user.role_id === undefined) {
       message.error('请选择角色');
+      this.setState({
+        visible: true
+      })
+    } else if (this.user.role_id === "5f74631c0e955025a8439b50" && user.role_id != "5f74631c0e955025a8439b50") {
+      message.error('超级管理员不能修改自身权限');
       this.setState({
         visible: true
       })
