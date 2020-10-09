@@ -77,27 +77,26 @@ export default class PicturesWall extends React.Component {
   handleChange = async ({file, fileList}) => {
     // console.log('handleChange()', file.status, fileList.length, file === fileList[fileList.length - 1])
     // 一旦上传成功修正当前上传的file的信息(name,url)
-    // console.log(file, fileList)
     if (file.status === 'done') { // 上传图片
       const result = file.response
-      if (result.status === 0) {
-        message.success('上传图片成功')
-        const {name, url} = result.data
-        file = fileList[fileList.length - 1]
-        file.name = name
-        file.url = url
-      } else {
-        message.error('上传图片失败')
-      }
+      // if (result.status === 0) {
+      // message.success('上传图片成功')
+      const {name, url} = result.data
+      file = fileList[fileList.length - 1]
+      file.name = name
+      file.url = url
+      // } else {
+      //   message.error('上传图片失败')
+      // }
     } else if (file.status === 'removed') { // 删除图片
-      const result = await reqDeleteImg(file.name)
-      if (result.status === 0) {
-        message.success('删除图片成功')
-      } else {
-        message.error('删除图片失败')
-      }
+      // fileList.splice(fileList.indexOf(file), 1)
+      // const result = await reqDeleteImg(file.name)
+      // if (result.status === 0) {
+      // message.success('删除图片成功')
+      // } else {
+      //   message.error('删除图片失败')
+      // }
     }
-
     // 在操作(上传/删除)过程中更新fileList状态
     this.setState({fileList})
   };

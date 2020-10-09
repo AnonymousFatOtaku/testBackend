@@ -128,7 +128,7 @@ export default class User extends Component {
         user.role_id = this.user.role_id
       }
     }
-    console.log(user, this.user)
+    // console.log(user, this.user)
 
     let uapReg = /^[a-zA-Z0-9_]{3,12}$/
     let phoneReg = /^1[3456789]\d{9}$/
