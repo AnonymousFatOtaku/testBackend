@@ -82,11 +82,11 @@ export default class User extends Component {
 
   // 删除指定用户
   deleteUser = (user) => {
-    if (user.role_id === "5f74631c0e955025a8439b50") {
-      message.warning('不能删除超级管理员');
+    if (memoryUtils.user.username === user.username) {
+      message.warning('不能删除当前登录的用户');
     } else {
-      if (memoryUtils.user.username === user.username) {
-        message.warning('不能删除当前登录的用户');
+      if (user.role_id === "5f74631c0e955025a8439b50") {
+        message.warning('不能删除超级管理员');
       } else {
         Modal.confirm({
           title: `确认删除${user.username}吗?`,
@@ -128,7 +128,7 @@ export default class User extends Component {
         user.role_id = this.user.role_id
       }
     }
-    // console.log(user, this.user)
+    console.log(user, this.user)
 
     let uapReg = /^[a-zA-Z0-9_]{3,12}$/
     let phoneReg = /^1[3456789]\d{9}$/
@@ -159,7 +159,7 @@ export default class User extends Component {
       this.setState({
         visible: true
       })
-    } else if (this.user.role_id === "5f74631c0e955025a8439b50" && user.role_id != "5f74631c0e955025a8439b50") {
+    } else if (this.user && this.user.role_id === "5f74631c0e955025a8439b50" && user.role_id != "5f74631c0e955025a8439b50") {
       message.error('超级管理员不能修改自身权限');
       this.setState({
         visible: true
@@ -252,8 +252,7 @@ export default class User extends Component {
             <Form.Item name="password" label="密码：" rules={[
               {pattern: /^[a-zA-Z0-9_]{3,12}$/, message: '密码只能由3-12个英文、数字或下划线组成'},
             ]}>
-              <Input.Password type='password' placeholder="请输入密码" style={{width: 400, float: "right"}}
-                              defaultValue={user.password}/>
+              <Input.Password type='password' placeholder="请输入密码" style={{width: 400, float: "right"}}/>
             </Form.Item>
             <Form.Item name="phone" label="手机号：" rules={[
               {min: 11, max: 11, message: '手机号长度应为11位'},
