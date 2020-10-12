@@ -114,7 +114,7 @@ export default class ProductAddUpdate extends Component {
     const {pCategoryId, categoryId, imgs, detail} = product
     const {options} = this.state;
 
-    console.log(product)
+    // console.log(product)
     // console.log(options)
     // console.log(pCategoryId, categoryId)
     // console.log(this.getCategorysName(pCategoryId, categoryId))

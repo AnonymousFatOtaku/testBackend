@@ -42,7 +42,7 @@ export default class Product extends Component {
                 {status === true ? '下架' : '上架'}
               </Button>
               <br/>
-              <span>状态：{status === true ? '在售' : '已下架'}</span>
+              <span>{status === true ? '在售' : '已下架'}</span>
             </div>
           )
         }

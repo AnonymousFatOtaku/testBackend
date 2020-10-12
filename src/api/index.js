@@ -40,10 +40,16 @@ export const reqUsers = () => ajax('/manage/user/list')
 export const reqDeleteUser = (userId) => ajax('/manage/user/delete', {userId}, 'POST')
 // 添加/更新用户
 export const reqAddOrUpdateUser = (user) => ajax('/manage/user/' + (user._id ? 'update' : 'add'), user, 'POST')
-// 获取所有订单的列表
-export const reqOrders = () => ajax('/manage/order/list')
+// 获取订单分页列表
+export const reqOrders = (pageNum, pageSize) => ajax('/manage/order/list', {pageNum, pageSize})
 // 删除指定名称的图片
 export const reqDeleteImg = (name) => ajax('/manage/img/delete', {name}, 'POST')
+// 根据商品名称/商品类型/用户名搜索订单分页列表
+export const reqSearchOrders = ({pageNum, pageSize, searchName, searchType}) => ajax('/manage/order/search', {
+  pageNum,
+  pageSize,
+  [searchType]: searchName,
+})
 
 // 获取当前IP所在地天气
 export const reqWeather = () => {
