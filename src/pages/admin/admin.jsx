@@ -13,7 +13,10 @@ import Pie from "../pie/pie";
 import Role from "../role/role";
 import User from "../user/user";
 import Order from "../order/order";
+import UserOrder from "../user-order/user-order";
+import UserProduct from "../user-product/user-product";
 import memoryUtils from "../../utils/memoryUtils";
+import ProductInfo from '../product/product-info'
 import './admin.less';
 import {reqRoles} from "../../api";
 
@@ -93,6 +96,14 @@ export default class Admin extends Component {
               </Route>
               <Route path="/order" component={Order}>
                 {menus.indexOf("/order") === -1 ? <Redirect to="/home"/> : null}
+              </Route>
+              <Route path="/userProduct" component={UserProduct}>
+                {menus.indexOf("/userProduct") === -1 ? <Redirect to="/home"/> : null}
+              </Route>
+              <Route path="/userOrder" component={UserOrder}>
+                {menus.indexOf("/userOrder") === -1 ? <Redirect to="/home"/> : null}
+              </Route>
+              <Route path="/ProductInfo" component={ProductInfo}>
               </Route>
             </Switch>
           </Content>

@@ -60,7 +60,7 @@ class AdminSider extends Component {
 
     const {menus} = this.state
 
-    // console.log(menus)
+    // console.log(memoryUtils.user)
 
     // 获取当前请求的路由路径
     let path = this.props.location.pathname
@@ -81,7 +81,7 @@ class AdminSider extends Component {
       <div className="adminSider">
         <Link to='/' className="adminSider-header">
           <img src={logo} alt="logo"/>
-          <h3>管理后台</h3>
+          <h3>{memoryUtils.user.role_id === "5f7463560e955025a8439b56" ? "维纳斯商城" : "管理后台"}</h3>
         </Link>
         <Menu selectedKeys={[path]} defaultOpenKeys={[this.openKey]} mode="inline" theme="dark">
           {menus.indexOf("/home") != -1 ?
@@ -142,6 +142,18 @@ class AdminSider extends Component {
             <Menu.Item key="/order" icon={<BarsOutlined/>}>
               <Link to='/order'>
                 订单管理
+              </Link>
+            </Menu.Item> : null}
+          {menus.indexOf("/userProduct") != -1 ?
+            <Menu.Item key="/userProduct" icon={<ShoppingCartOutlined/>}>
+              <Link to='/userProduct'>
+                商品列表
+              </Link>
+            </Menu.Item> : null}
+          {menus.indexOf("/userOrder") != -1 ?
+            <Menu.Item key="/userOrder" icon={<BarsOutlined/>}>
+              <Link to='/userOrder'>
+                我的订单
               </Link>
             </Menu.Item> : null}
         </Menu>

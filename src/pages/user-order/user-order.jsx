@@ -1,10 +1,11 @@
-// 订单管理路由
-import React, {Component} from "react";
-import {Button, Card, Space, Table, Modal, Select, Input, Form} from 'antd';
-import {formateDate} from "../../utils/dateUtils"
-import {reqOrders, reqSearchOrders} from "../../api/index";
+// 用户订单路由
+import React, {Component} from 'react'
+import {Button, Card, Input, Select, Table} from "antd";
+import {formateDate} from "../../utils/dateUtils";
+import {reqUserOrders, reqUserSearchOrders} from "../../api";
+import memoryUtils from '../../utils/memoryUtils'
 
-export default class Order extends Component {
+export default class userOrder extends Component {
 
   state = {
     total: 0, // 订单的总数量
@@ -29,10 +30,6 @@ export default class Order extends Component {
         title: '商品名',
         dataIndex: 'productName',
       },
-      {
-        title: '下单用户',
-        dataIndex: 'username',
-      },
     ];
   }
 
@@ -42,10 +39,12 @@ export default class Order extends Component {
     this.setState({loading: true}) // 显示loading
     const {searchName, searchType} = this.state
     let result
+    let username = memoryUtils.user.username
+    // console.log(username)
     if (searchName) { // 如果搜索关键字有值说明要做搜索分页
-      result = await reqSearchOrders({pageNum, pageSize: 9, searchName, searchType})
+      result = await reqUserSearchOrders({pageNum, pageSize: 9, searchName, searchType, username})
     } else { // 一般分页请求
-      result = await reqOrders(pageNum, 9)
+      result = await reqUserOrders(pageNum, 9, username)
     }
     this.setState({loading: false}) // 隐藏loading
     if (result.status === 0) {
@@ -67,7 +66,6 @@ export default class Order extends Component {
   }
 
   render() {
-
     // 取出状态数据
     const {total, loading, orders, searchType, searchName} = this.state
     const {Option} = Select;
@@ -78,7 +76,6 @@ export default class Order extends Component {
         <Select style={{width: 200, marginRight: 20}} value={searchType}
                 onChange={value => this.setState({searchType: value})}>
           <Option value='productName'>按名称搜索</Option>
-          <Option value='username'>按用户搜索</Option>
         </Select>
         <Input placeholder='关键字' style={{width: 200, marginRight: 20}} value={searchName}
                onChange={event => this.setState({searchName: event.target.value})}/>

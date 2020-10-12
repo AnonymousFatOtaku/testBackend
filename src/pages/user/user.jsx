@@ -226,7 +226,7 @@ export default class User extends Component {
 
     const {users, roles, visible} = this.state
     const user = this.user || {}
-    // console.log(user)
+    console.log(user)
 
     // 顶部左侧按钮
     const title = (

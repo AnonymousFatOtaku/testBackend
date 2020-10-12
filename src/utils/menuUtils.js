@@ -48,6 +48,14 @@ const menuUtils = [
     name: '订单管理',
     path: '/order',
   },
+  {
+    name: '商品列表',
+    path: '/userProduct',
+  },
+  {
+    name: '我的订单',
+    path: '/userOrder',
+  },
 ]
 
 export default menuUtils

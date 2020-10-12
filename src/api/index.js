@@ -50,6 +50,29 @@ export const reqSearchOrders = ({pageNum, pageSize, searchName, searchType}) => 
   pageSize,
   [searchType]: searchName,
 })
+// 获取展示给用户的商品列表
+export const reqUserProduct = (pageNum, pageSize) => ajax('/manage/userProduct/list', {pageNum, pageSize})
+// 根据商品名称/商品描述搜索商品分页列表，搜索的类型：productName/productDesc
+export const reqSearchUserProduct = ({pageNum, pageSize, searchName, searchType}) => ajax('/manage/userProduct/search', {
+  pageNum,
+  pageSize,
+  [searchType]: searchName,
+})
+// 创建订单
+export const reqAddOrder = (productName, username) => ajax('/manage/order/add', {productName, username}, 'POST')
+// 获取用户订单分页列表
+export const reqUserOrders = (pageNum, pageSize, username) => ajax('/manage/userOrder/list', {
+  pageNum,
+  pageSize,
+  username
+})
+// 根据商品名称/商品类型/用户名搜索用户订单分页列表
+export const reqUserSearchOrders = ({pageNum, pageSize, searchName, searchType, username}) => ajax('/manage/userOrder/search', {
+  pageNum,
+  pageSize,
+  [searchType]: searchName,
+  username,
+})
 
 // 获取当前IP所在地天气
 export const reqWeather = () => {
